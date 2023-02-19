@@ -65,7 +65,7 @@ fun GeneralButton(title: String, onClick: () -> Unit, paddingTop: Int, paddingBo
     Button(
         onClick = { onClick.invoke() },
         modifier = Modifier
-            .padding(top = paddingTop.dp, start = 30.dp, end = paddingBottom.dp)
+            .padding(top = paddingTop.dp, start = 30.dp, end = 30.dp)
             .fillMaxWidth(),
 
         ) {

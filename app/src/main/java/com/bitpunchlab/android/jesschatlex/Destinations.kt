@@ -5,3 +5,11 @@ interface Destinations {
 
 }
 
+object Login : Destinations {
+    override val route: String = "Login"
+
+}
+
+object CreateAccount : Destinations {
+    override val route: String = "CreateAccount"
+}

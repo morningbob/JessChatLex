@@ -1,7 +1,6 @@
 package com.bitpunchlab.android.jesschatlex.userAccount
 
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -9,22 +8,48 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.amplifyframework.auth.AuthException
+import com.amplifyframework.auth.cognito.options.AWSCognitoAuthSignInOptions
+import com.amplifyframework.auth.cognito.options.AuthFlowType
+import com.amplifyframework.auth.options.AuthSignInOptions
+import com.amplifyframework.auth.options.AuthSignUpOptions
+import com.amplifyframework.kotlin.core.Amplify
+import com.bitpunchlab.android.jesschatlex.CreateAccount
 import com.bitpunchlab.android.jesschatlex.R
 import com.bitpunchlab.android.jesschatlex.base.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavHostController) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
         var emailInput by remember { mutableStateOf(TextFieldValue("")) }
         var passwordInput by remember { mutableStateOf(TextFieldValue("")) }
-        var onSendClicked = { Log.i("onSendClicked", "received in main")
+        var onSendClicked = {
+            //Log.i("onSendClicked", "received in main")
+            CoroutineScope(Dispatchers.IO).launch {
+                if (loginUser(emailInput.text, passwordInput.text)) {
+                    Log.i("login screen", "success passed to screen")
+                } else {
+                    Log.i("login screen", "failure passed to screen")
+                }
+            }
+            Unit
+        }
+        var onSignUpClicked = {
+            navController.navigate(CreateAccount.route)
+            Log.i("onSignUpClicked", "received in main")
+            Unit
+        }
+        val printInputs = {
+            Log.i("email", emailInput.text)
             Unit
         }
 
@@ -46,10 +71,38 @@ fun LoginScreen() {
                 DescriptionTitleText(title = "Password", paddingTop = 10, paddingBottom = 0)
                 passwordInput = UserInputTextField(hint = "fjeob46l", hide = true)
             }
-            GeneralButton(title = "Send", onClick = onSendClicked, paddingTop = 20, paddingBottom = 20)
+            GeneralButton(title = "Send", onClick = onSendClicked, paddingTop = 20, paddingBottom = 0)
+            GeneralButton(title = "Sign Up", onClick = onSignUpClicked, paddingTop = 10, paddingBottom = 20)
+            GeneralButton(title = "test", onClick = printInputs, paddingTop = 10, paddingBottom = 10)
         }
     }
 }
+
+private suspend fun loginUser(email: String, password: String) : Boolean =
+    suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+        val map = HashMap<String, String>()
+        map.put("email", email)
+        val options = AWSCognitoAuthSignInOptions.builder()
+            //.authFlowType(AuthFlowType.USER_PASSWORD_AUTH)
+            .metadata(map)
+            .build()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val result = Amplify.Auth.signIn(username = email, password = password)
+                if (result.isSignedIn) {
+                    Log.i("AuthQuickstart", "Sign in succeeded")
+                } else {
+                    Log.e("AuthQuickstart", "Sign in not complete")
+                }
+            } catch (error: AuthException) {
+                Log.e("AuthQuickstart", "Sign in failed", error)
+            }
+        }
+
+}
+
+
 /*
 TextField(
                     modifier = Modifier
