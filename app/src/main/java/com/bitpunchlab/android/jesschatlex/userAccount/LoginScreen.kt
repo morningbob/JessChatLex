@@ -9,6 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthException
 import com.amplifyframework.auth.cognito.options.AWSCognitoAuthSignInOptions
@@ -23,9 +25,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.math.log
 
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(navController: NavHostController,
+    loginViewModel: LoginViewModel = viewModel()) {
+
+    val emailState by loginViewModel.emailState.collectAsState()
+    val passwordState by loginViewModel.passwordState.collectAsState()
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
@@ -58,20 +66,20 @@ fun LoginScreen(navController: NavHostController) {
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
-
-
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 HeaderImage(resource = R.mipmap.login, description = "Login Icon",
                 paddingTop = 0, paddingBottom = 0)
-                TitleText(title = "Login", paddingTop = 5, paddingBottom = 0)
+                TitleText(title = "Login", paddingTop = 30, paddingBottom = 30)
             }
             Column(horizontalAlignment = Alignment.Start) {
-                DescriptionTitleText(title = "Email", paddingTop = 10, paddingBottom = 0)
-                emailInput = UserInputTextField(hint = "ben@abc.com", hide = false)
-                DescriptionTitleText(title = "Password", paddingTop = 10, paddingBottom = 0)
-                passwordInput = UserInputTextField(hint = "fjeob46l", hide = true)
+                //DescriptionTitleText(title = "Email", paddingTop = 10, paddingBottom = 0)
+                UserInputTextField(title = "Email", content = emailState, hide = false, paddingTop = 10, paddingBottom = 0
+                ) { loginViewModel.updateEmail(it) }
+                //DescriptionTitleText(title = "Password", paddingTop = 10, paddingBottom = 0)
+                UserInputTextField(title = "Password", content = passwordState, hide = true, paddingTop = 10, paddingBottom = 0
+                ) { loginViewModel.updatePassword(it) }
             }
-            GeneralButton(title = "Send", onClick = onSendClicked, paddingTop = 20, paddingBottom = 0)
+            GeneralButton(title = "Send", onClick = onSendClicked, paddingTop = 30, paddingBottom = 0)
             GeneralButton(title = "Sign Up", onClick = onSignUpClicked, paddingTop = 10, paddingBottom = 20)
             GeneralButton(title = "test", onClick = printInputs, paddingTop = 10, paddingBottom = 10)
         }

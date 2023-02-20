@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthException
 import com.amplifyframework.auth.AuthUserAttributeKey
@@ -23,7 +24,19 @@ import com.bitpunchlab.android.jesschatlex.base.*
 import kotlinx.coroutines.*
 
 @Composable
-fun CreateAccountScreen(navController: NavHostController) {
+fun CreateAccountScreen(navController: NavHostController,
+    registerViewModel: RegisterViewModel = viewModel()) {
+
+    val nameState by registerViewModel.nameState.collectAsState()
+    val emailState by registerViewModel.emailState.collectAsState()
+    val passwordState by registerViewModel.passwordState.collectAsState()
+    val confirmPassState by registerViewModel.confirmPassState.collectAsState()
+    val nameErrorState by registerViewModel.confirmPassState.collectAsState()
+    val emailErrorState by registerViewModel.confirmPassState.collectAsState()
+    val passwordErrorState by registerViewModel.confirmPassState.collectAsState()
+    val confirmPassErrorState by registerViewModel.confirmPassState.collectAsState()
+
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
@@ -39,15 +52,12 @@ fun CreateAccountScreen(navController: NavHostController) {
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                var nameInput by remember { mutableStateOf(TextFieldValue("")) }
-                var emailInput by remember { mutableStateOf(TextFieldValue("")) }
-                var passwordInput by remember { mutableStateOf(TextFieldValue("")) }
-                var confirmPasswordInput by remember { mutableStateOf(TextFieldValue("")) }
+
                 var onSendClicked = {
                     Log.i("onSendClicked", "received")
                     // should validate before sending
                     CoroutineScope(Dispatchers.IO).launch {
-                        if (registerUser(nameInput.text, emailInput.text, passwordInput.text)) {
+                        if (registerUser(nameState, emailState, passwordState)) {
                             // alert user success
                             Log.i("create screen", "success result passed to screen")
                         } else {
@@ -67,23 +77,27 @@ fun CreateAccountScreen(navController: NavHostController) {
                 )
                 TitleText(title = "Create Account", paddingTop = 30, paddingBottom = 30)
                 Column(horizontalAlignment = Alignment.Start) {
-                    DescriptionTitleText(title = "Name", paddingTop = 10, paddingBottom = 0)
-                    nameInput = UserInputTextField(hint = "Ben", hide = false)
-                    DescriptionTitleText(title = "Email", paddingTop = 10, paddingBottom = 0)
-                    emailInput = UserInputTextField(hint = "ben@abc.com", hide = false)
-                    DescriptionTitleText(title = "Password", paddingTop = 10, paddingBottom = 0)
-                    passwordInput = UserInputTextField(hint = "meqr06px", hide = true)
-                    DescriptionTitleText(
-                        title = "Confirm Password",
-                        paddingTop = 10,
-                        paddingBottom = 0
-                    )
-                    confirmPasswordInput = UserInputTextField(hint = "meqr06px", hide = true)
+                    //DescriptionTitleText(title = "Name", paddingTop = 10, paddingBottom = 0)
+                    UserInputTextField(title = "Name", content = nameState, hide = false, paddingTop = 10, paddingBottom = 0
+                    ) { registerViewModel.updateName(it) }
+                    //DescriptionTitleText(title = "Email", paddingTop = 10, paddingBottom = 0)
+                    UserInputTextField(title = "Email", content = emailState, hide = false, paddingTop = 10, paddingBottom = 0
+                    ) { registerViewModel.updateEmail(it) }
+                    //DescriptionTitleText(title = "Password", paddingTop = 10, paddingBottom = 0)
+                    UserInputTextField(title = "Password", content = passwordState, hide = true, paddingTop = 10, paddingBottom = 0
+                    ) { registerViewModel.updatePassword(it) }
+                    //DescriptionTitleText( title = "Confirm Password", paddingTop = 10, paddingBottom = 0)
+                    UserInputTextField(title = "Confirm Password", content = confirmPassState, hide = true,
+                        paddingTop = 10, paddingBottom = 0) {
+                        registerViewModel.updateConfirmPassword(it)
+                    }
                     //DescriptionTitleText(title = , paddingTop = , paddingBottom = )
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     GeneralButton(
                         title = "Send",
                         onClick = onSendClicked,
-                        paddingTop = 20,
+                        paddingTop = 30,
                         paddingBottom = 20
                     )
                     GeneralButton(
@@ -103,6 +117,7 @@ private suspend fun registerUser(name: String, email: String, password: String) 
     suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
         val options = AuthSignUpOptions.builder()
             .userAttribute(AuthUserAttributeKey.email(), email)
+            .userAttribute(AuthUserAttributeKey.name(), name)
             .build()
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -115,3 +130,6 @@ private suspend fun registerUser(name: String, email: String, password: String) 
             }
     }
 }
+
+
+

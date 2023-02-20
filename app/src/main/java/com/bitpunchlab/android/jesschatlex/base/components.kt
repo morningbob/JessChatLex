@@ -1,13 +1,14 @@
 package com.bitpunchlab.android.jesschatlex.base
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -17,25 +18,39 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bitpunchlab.android.jesschatlex.R
+import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 
 @Composable
-fun UserInputTextField(hint: String, hide: Boolean) : TextFieldValue {
-    var inputText by remember { mutableStateOf(TextFieldValue("")) }
+fun UserInputTextField(title: String, content: String, hide: Boolean,
+                       paddingTop: Int, paddingBottom: Int,
+                        call: (String) -> Unit)  {
+    //var inputText by remember { mutableStateOf(TextFieldValue("")) }
 
     val keyboardType = if (hide) { KeyboardType.Password} else { KeyboardType.Text }
 
-    TextField(
-        value = inputText,
-        onValueChange = { newText: TextFieldValue ->
-            inputText = newText
+    OutlinedTextField(
+        label = { Text(text = title) },
+        value = content,
+        onValueChange = { newText ->
+            call.invoke(newText)
         },
+        //onValueChange = { newText: TextFieldValue ->
+        //    inputText = newText
+        //},
+
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 5.dp, start = 30.dp, end = 30.dp),
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
+            .padding(top = paddingTop.dp, bottom = paddingBottom.dp, start = 30.dp, end = 30.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+        focusedBorderColor = JessChatLex.textFieldBorderColor,
+        unfocusedBorderColor = JessChatLex.textFieldBorderColor,
+        focusedLabelColor = MaterialTheme.colors.secondary,
+        cursorColor = MaterialTheme.colors.primaryVariant
+    ),
     )
 
-    return inputText
+    //return inputText
 }
 
 @Composable
@@ -62,15 +77,22 @@ fun DescriptionTitleText(title: String, paddingTop: Int, paddingBottom: Int) {
 
 @Composable
 fun GeneralButton(title: String, onClick: () -> Unit, paddingTop: Int, paddingBottom: Int) {
-    Button(
-        onClick = { onClick.invoke() },
-        modifier = Modifier
-            .padding(top = paddingTop.dp, start = 30.dp, end = 30.dp)
-            .fillMaxWidth(),
+        // OutlineTextField will be the content...
+        OutlinedButton(
+            onClick = { onClick.invoke() },
+            modifier = Modifier
+                .padding(top = paddingTop.dp, start = 30.dp, end = 30.dp)
+                .fillMaxWidth(0.5f),
+            colors = ButtonDefaults.buttonColors(JessChatLex.background),
+            border = BorderStroke(2.dp, JessChatLex.buttonBorderColor),
+            shape = RoundedCornerShape(12.dp)
 
-        ) {
-        Text(text = title)
-    }
+            ) {
+            Text(
+                text = title,
+                color = JessChatLex.buttonTextColor
+            )
+        }
 }
 
 @Composable
