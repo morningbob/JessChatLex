@@ -19,6 +19,7 @@ import com.amplifyframework.auth.AuthUserAttributeKey
 import com.amplifyframework.auth.options.AuthSignUpOptions
 import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.Login
+import com.bitpunchlab.android.jesschatlex.Main
 import com.bitpunchlab.android.jesschatlex.R
 import com.bitpunchlab.android.jesschatlex.base.*
 import kotlinx.coroutines.*
@@ -31,11 +32,10 @@ fun CreateAccountScreen(navController: NavHostController,
     val emailState by registerViewModel.emailState.collectAsState()
     val passwordState by registerViewModel.passwordState.collectAsState()
     val confirmPassState by registerViewModel.confirmPassState.collectAsState()
-    val nameErrorState by registerViewModel.confirmPassState.collectAsState()
-    val emailErrorState by registerViewModel.confirmPassState.collectAsState()
-    val passwordErrorState by registerViewModel.confirmPassState.collectAsState()
-    val confirmPassErrorState by registerViewModel.confirmPassState.collectAsState()
-
+    val nameErrorState by registerViewModel.nameErrorState.collectAsState()
+    val emailErrorState by registerViewModel.emailErrorState.collectAsState()
+    val passwordErrorState by registerViewModel.passwordErrorState.collectAsState()
+    val confirmPassErrorState by registerViewModel.confirmPassErrorState.collectAsState()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -60,6 +60,8 @@ fun CreateAccountScreen(navController: NavHostController,
                         if (registerUser(nameState, emailState, passwordState)) {
                             // alert user success
                             Log.i("create screen", "success result passed to screen")
+                            // in this case, navigate to main screen
+                            navController.navigate(Main.route)
                         } else {
                             // alert user failure
                             Log.i("create screen", "failure result passed to screen")
@@ -80,29 +82,35 @@ fun CreateAccountScreen(navController: NavHostController,
                     //DescriptionTitleText(title = "Name", paddingTop = 10, paddingBottom = 0)
                     UserInputTextField(title = "Name", content = nameState, hide = false, paddingTop = 10, paddingBottom = 0
                     ) { registerViewModel.updateName(it) }
+                    ErrorText(error = nameErrorState)
                     //DescriptionTitleText(title = "Email", paddingTop = 10, paddingBottom = 0)
                     UserInputTextField(title = "Email", content = emailState, hide = false, paddingTop = 10, paddingBottom = 0
                     ) { registerViewModel.updateEmail(it) }
+                    ErrorText(error = emailErrorState)
                     //DescriptionTitleText(title = "Password", paddingTop = 10, paddingBottom = 0)
                     UserInputTextField(title = "Password", content = passwordState, hide = true, paddingTop = 10, paddingBottom = 0
                     ) { registerViewModel.updatePassword(it) }
+                    ErrorText(error = passwordErrorState)
                     //DescriptionTitleText( title = "Confirm Password", paddingTop = 10, paddingBottom = 0)
                     UserInputTextField(title = "Confirm Password", content = confirmPassState, hide = true,
                         paddingTop = 10, paddingBottom = 0) {
                         registerViewModel.updateConfirmPassword(it)
                     }
+                    ErrorText(error = confirmPassErrorState)
                     //DescriptionTitleText(title = , paddingTop = , paddingBottom = )
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     GeneralButton(
                         title = "Send",
                         onClick = onSendClicked,
+                        shouldEnable = false,
                         paddingTop = 30,
                         paddingBottom = 20
                     )
                     GeneralButton(
                         title = "Login",
                         onClick = onLoginClicked,
+                        shouldEnable = true,
                         paddingTop = 10,
                         paddingBottom = 20
                     )

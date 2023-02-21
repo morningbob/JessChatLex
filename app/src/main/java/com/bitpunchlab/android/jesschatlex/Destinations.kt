@@ -13,3 +13,7 @@ object Login : Destinations {
 object CreateAccount : Destinations {
     override val route: String = "CreateAccount"
 }
+
+object Main : Destinations {
+    override val route: String = "Main"
+}

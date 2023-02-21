@@ -12,8 +12,11 @@ object JessChatLex {
     val background = Color(0xFFabe2ed)
     val titleColor = Color(0xFF041a87)
     val contentColor = Color(0xFF0b29bd)
+    val errorColor = Color.Red
     val textFieldBorderColor = Color(0xFF2677e0)
     val buttonBorderColor = Color(0xFF09b559)
     val buttonTextColor = Color(0xFF2677e0)
     //val buttonTextColor = Color(0xFF09b559)
+    val dialogBackgroundColor = Color(0xFFb6f0d4)
+    val dialogMessageColor = Color(0xFF243bed)
 }

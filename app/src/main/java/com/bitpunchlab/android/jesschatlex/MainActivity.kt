@@ -20,28 +20,42 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLexTheme
 import com.bitpunchlab.android.jesschatlex.userAccount.LoginScreen
 import androidx.navigation.compose.rememberNavController
+import com.amplifyframework.auth.AuthChannelEventName
 import com.bitpunchlab.android.jesschatlex.userAccount.CreateAccountScreen
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
+import com.amplifyframework.core.InitializationStatus
+import com.amplifyframework.hub.HubChannel
 import com.amplifyframework.kotlin.core.Amplify
+import com.bitpunchlab.android.jesschatlex.main.MainScreen
+import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var userInfoViewModel: UserInfoViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //configureAmplify(applicationContext)
+        userInfoViewModel = ViewModelProvider(this).get(UserInfoViewModel::class.java)
+
         CoroutineScope(Dispatchers.IO).launch {
             val authSession = Amplify.Auth.fetchAuthSession(
                 //{ Log.i("AmplifyQuickstart", "Auth session = ") },
                 //{ error -> Log.e("AmplifyQuickstart", "Failed to fetch auth session", error) }
             )
             Log.i("AmplifyQuickstart", "Auth session = $authSession")
+            authListening()
         }
         setContent {
             JessChatLexTheme {
@@ -68,10 +82,45 @@ fun JessNavigation() {
         composable(CreateAccount.route) {
             CreateAccountScreen(navController)
         }
+        composable(Main.route) {
+            MainScreen(navController)
+        }
     }
 }
 
+private suspend fun authListening() : Boolean =
 
+    suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+        CoroutineScope(Dispatchers.IO).launch {
+        Amplify.Hub.subscribe(HubChannel.AUTH).collect {
+            when (it.name) {
+                InitializationStatus.SUCCEEDED.toString() ->
+                    Log.i("AuthQuickstart", "Auth successfully initialized")
+                InitializationStatus.FAILED.toString() ->
+                    Log.i("AuthQuickstart", "Auth failed to succeed")
+                else -> when (AuthChannelEventName.valueOf(it.name)) {
+                    AuthChannelEventName.SIGNED_IN -> {
+                        Log.i("AuthQuickstart", "Auth just became signed in.")
+                        //isSignedIn = true
+                        cancellableContinuation.resume(true) {}
+                    }
+                    AuthChannelEventName.SIGNED_OUT -> {
+                        Log.i("AuthQuickstart", "Auth just became signed out.")
+                        cancellableContinuation.resume(false) {}
+                    }
+                    AuthChannelEventName.SESSION_EXPIRED -> {
+                        Log.i("AuthQuickstart", "Auth session just expired.")
+                        cancellableContinuation.resume(false) {}
+                    }
+                    AuthChannelEventName.USER_DELETED -> {
+                        Log.i("AuthQuickstart", "User has been deleted.")
+                        cancellableContinuation.resume(false) {}
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable

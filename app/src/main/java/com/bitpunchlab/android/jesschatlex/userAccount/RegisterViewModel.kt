@@ -23,17 +23,20 @@ class RegisterViewModel : ViewModel() {
     private val _confirmPassState = MutableStateFlow<String>("")
     val confirmPassState : StateFlow<String> = _confirmPassState.asStateFlow()
 
-    private val _nameErrorState = MutableStateFlow<String>("")
-    val nameErrorState : StateFlow<String> = _confirmPassState.asStateFlow()
+    // default the errors with space, that distinguish when the app starts,
+    // shouldn't let send button enabled.
 
-    private val _emailErrorState = MutableStateFlow<String>("")
-    val emailErrorState : StateFlow<String> = _confirmPassState.asStateFlow()
+    private val _nameErrorState = MutableStateFlow<String>(" ")
+    val nameErrorState : StateFlow<String> = _nameErrorState.asStateFlow()
 
-    private val _passwordErrorState = MutableStateFlow<String>("")
-    val passwordErrorState : StateFlow<String> = _confirmPassState.asStateFlow()
+    private val _emailErrorState = MutableStateFlow<String>(" ")
+    val emailErrorState : StateFlow<String> = _emailErrorState.asStateFlow()
 
-    private val _confirmPassErrorState = MutableStateFlow<String>("")
-    val confirmPassErrorState : StateFlow<String> = _confirmPassState.asStateFlow()
+    private val _passwordErrorState = MutableStateFlow<String>(" ")
+    val passwordErrorState : StateFlow<String> = _passwordErrorState.asStateFlow()
+
+    private val _confirmPassErrorState = MutableStateFlow<String>(" ")
+    val confirmPassErrorState : StateFlow<String> = _confirmPassErrorState.asStateFlow()
 
     fun updateName(inputName: String) {
         _nameState.value = inputName

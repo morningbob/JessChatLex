@@ -27,6 +27,12 @@ val Typography = Typography(
         fontSize = 18.sp,
         color = JessChatLex.contentColor
     ),
+    body2 = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        color = JessChatLex.errorColor
+    ),
     button = TextStyle(
         fontSize = 18.sp,
         fontWeight = FontWeight.Bold,

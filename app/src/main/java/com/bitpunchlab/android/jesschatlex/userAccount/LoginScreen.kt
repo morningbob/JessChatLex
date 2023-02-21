@@ -8,43 +8,50 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthException
 import com.amplifyframework.auth.cognito.options.AWSCognitoAuthSignInOptions
-import com.amplifyframework.auth.cognito.options.AuthFlowType
-import com.amplifyframework.auth.options.AuthSignInOptions
-import com.amplifyframework.auth.options.AuthSignUpOptions
 import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.CreateAccount
+import com.bitpunchlab.android.jesschatlex.Main
 import com.bitpunchlab.android.jesschatlex.R
 import com.bitpunchlab.android.jesschatlex.base.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.math.log
+
 
 @Composable
 fun LoginScreen(navController: NavHostController,
-    loginViewModel: LoginViewModel = viewModel()) {
+    loginViewModel: LoginViewModel = viewModel(),
+    userInfoViewModel: UserInfoViewModel = viewModel()) {
+
+    val loginState by userInfoViewModel.isLoggedIn.collectAsState()
+    Log.i("login screen", "isLoggedIn? $loginState")
+    if (loginState == true) {
+        navController.navigate(Main.route)
+    }
 
     val emailState by loginViewModel.emailState.collectAsState()
     val passwordState by loginViewModel.passwordState.collectAsState()
+    val emailErrorState by loginViewModel.emailErrorState.collectAsState()
+    val passwordErrorState by loginViewModel.passwordErrorState.collectAsState()
+
+    // to enable the send button or not, send to aws
+    val shouldEnable = emailErrorState == "" && passwordErrorState == ""
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
-        var emailInput by remember { mutableStateOf(TextFieldValue("")) }
-        var passwordInput by remember { mutableStateOf(TextFieldValue("")) }
         var onSendClicked = {
             //Log.i("onSendClicked", "received in main")
             CoroutineScope(Dispatchers.IO).launch {
-                if (loginUser(emailInput.text, passwordInput.text)) {
+                if (loginUser(emailState, passwordState)) {
                     Log.i("login screen", "success passed to screen")
+                    navController.navigate(Main.route)
                 } else {
                     Log.i("login screen", "failure passed to screen")
                 }
@@ -57,7 +64,7 @@ fun LoginScreen(navController: NavHostController,
             Unit
         }
         val printInputs = {
-            Log.i("email", emailInput.text)
+            Log.i("email", emailState)
             Unit
         }
 
@@ -75,13 +82,15 @@ fun LoginScreen(navController: NavHostController,
                 //DescriptionTitleText(title = "Email", paddingTop = 10, paddingBottom = 0)
                 UserInputTextField(title = "Email", content = emailState, hide = false, paddingTop = 10, paddingBottom = 0
                 ) { loginViewModel.updateEmail(it) }
+                ErrorText(error = emailErrorState)
                 //DescriptionTitleText(title = "Password", paddingTop = 10, paddingBottom = 0)
                 UserInputTextField(title = "Password", content = passwordState, hide = true, paddingTop = 10, paddingBottom = 0
                 ) { loginViewModel.updatePassword(it) }
+                ErrorText(error = passwordErrorState)
             }
-            GeneralButton(title = "Send", onClick = onSendClicked, paddingTop = 30, paddingBottom = 0)
-            GeneralButton(title = "Sign Up", onClick = onSignUpClicked, paddingTop = 10, paddingBottom = 20)
-            GeneralButton(title = "test", onClick = printInputs, paddingTop = 10, paddingBottom = 10)
+            GeneralButton(title = "Send", onClick = onSendClicked, paddingTop = 30, paddingBottom = 0, shouldEnable = shouldEnable)
+            GeneralButton(title = "Sign Up", onClick = onSignUpClicked, paddingTop = 10, paddingBottom = 20, shouldEnable = true)
+            GeneralButton(title = "test", onClick = printInputs, paddingTop = 10, paddingBottom = 10, shouldEnable = true)
         }
     }
 }
