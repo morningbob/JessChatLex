@@ -91,19 +91,21 @@ fun ErrorText(error: String) {
 fun GeneralButton(title: String, onClick: () -> Unit, shouldEnable: Boolean, paddingTop: Int, paddingBottom: Int) {
 
     val buttonTextColor = if (shouldEnable) JessChatLex.buttonTextColor else Color.Gray
+    val buttonBorderColor = if (shouldEnable) JessChatLex.buttonBorderColor else Color.Gray
 
     OutlinedButton(
         onClick = { onClick.invoke() },
         modifier = Modifier
-            .padding(top = paddingTop.dp, start = 30.dp, end = 30.dp)
+            .padding(top = paddingTop.dp, bottom = paddingBottom.dp, start = 30.dp, end = 30.dp)
             .fillMaxWidth(0.5f),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = Color.Transparent,
             contentColor = Color.Transparent,
             disabledContentColor = Color.Transparent,
-            disabledBackgroundColor = Color.Transparent),
+            disabledBackgroundColor = Color.Transparent,
+            ),
 
-        border = BorderStroke(2.dp, JessChatLex.buttonBorderColor),
+        border = BorderStroke(2.dp, buttonBorderColor),
         shape = RoundedCornerShape(12.dp),
         enabled = shouldEnable,
 

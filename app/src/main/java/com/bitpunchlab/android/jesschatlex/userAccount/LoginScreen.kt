@@ -1,6 +1,7 @@
 package com.bitpunchlab.android.jesschatlex.userAccount
 
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -8,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthException
@@ -25,13 +27,17 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 @Composable
 fun LoginScreen(navController: NavHostController,
-    loginViewModel: LoginViewModel = viewModel(),
-    userInfoViewModel: UserInfoViewModel = viewModel()) {
+                loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity),
+                userInfoViewModel: UserInfoViewModel = viewModel(LocalContext.current as ComponentActivity)
+) {
 
     val loginState by userInfoViewModel.isLoggedIn.collectAsState()
     Log.i("login screen", "isLoggedIn? $loginState")
-    if (loginState == true) {
-        navController.navigate(Main.route)
+    // LaunchedEffect is used to run code that won't trigger recomposition of the view
+    LaunchedEffect(key1 = loginState) {
+        if (loginState) {
+            navController.navigate(Main.route)
+        }
     }
 
     val emailState by loginViewModel.emailState.collectAsState()
@@ -75,7 +81,7 @@ fun LoginScreen(navController: NavHostController,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 HeaderImage(resource = R.mipmap.login, description = "Login Icon",
-                paddingTop = 0, paddingBottom = 0)
+                paddingTop = 30, paddingBottom = 0)
                 TitleText(title = "Login", paddingTop = 30, paddingBottom = 30)
             }
             Column(horizontalAlignment = Alignment.Start) {
@@ -91,6 +97,13 @@ fun LoginScreen(navController: NavHostController,
             GeneralButton(title = "Send", onClick = onSendClicked, paddingTop = 30, paddingBottom = 0, shouldEnable = shouldEnable)
             GeneralButton(title = "Sign Up", onClick = onSignUpClicked, paddingTop = 10, paddingBottom = 20, shouldEnable = true)
             GeneralButton(title = "test", onClick = printInputs, paddingTop = 10, paddingBottom = 10, shouldEnable = true)
+            Text(text = "isLogged in $loginState")
+            Button(onClick = {
+                Log.i("logged in is ", userInfoViewModel.isLoggedIn.value.toString())
+                //userInfoViewModel._isLoggedIn.value = true
+            }) {
+                Text("test")
+            }
         }
     }
 }

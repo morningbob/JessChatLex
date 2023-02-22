@@ -1,6 +1,7 @@
 package com.bitpunchlab.android.jesschatlex.userAccount
 
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -26,7 +28,7 @@ import kotlinx.coroutines.*
 
 @Composable
 fun CreateAccountScreen(navController: NavHostController,
-    registerViewModel: RegisterViewModel = viewModel()) {
+    registerViewModel: RegisterViewModel = viewModel(LocalContext.current as ComponentActivity)) {
 
     val nameState by registerViewModel.nameState.collectAsState()
     val emailState by registerViewModel.emailState.collectAsState()

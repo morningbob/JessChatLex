@@ -27,6 +27,11 @@ import androidx.navigation.compose.composable
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLexTheme
 import com.bitpunchlab.android.jesschatlex.userAccount.LoginScreen
 import androidx.navigation.compose.rememberNavController
+import com.amazonaws.mobile.client.AWSMobileClient
+import com.amazonaws.mobile.client.Callback;
+import com.amazonaws.mobile.client.UserStateDetails
+import com.amazonaws.services.lexrts.AmazonLexRuntime
+import com.amazonaws.services.lexrts.AmazonLexRuntimeClient
 import com.amplifyframework.auth.AuthChannelEventName
 import com.bitpunchlab.android.jesschatlex.userAccount.CreateAccountScreen
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
@@ -55,7 +60,22 @@ class MainActivity : ComponentActivity() {
                 //{ error -> Log.e("AmplifyQuickstart", "Failed to fetch auth session", error) }
             )
             Log.i("AmplifyQuickstart", "Auth session = $authSession")
-            authListening()
+            //authListening()
+
+            // check the auth session, if the user is signed it here is necessary
+            // because listening to auth state change, doesn't not detect the first state
+            if (authSession.isSignedIn) {
+                Log.i("main activity", "set sign in as true")
+                userInfoViewModel._isLoggedIn.value = true
+                Log.i("main activity", "isLogged in ${userInfoViewModel._isLoggedIn.value}")
+            }
+            //AmazonLexRuntime
+            //AmazonLexRuntimeClient
+            //AWSMobileClient.getInstance().initialize(applicationContext, Callback<UserStateDetails>{
+            AWSMobileClient.getInstance().initialize(applicationContext, Callback<UserStateDetails> {
+                
+            })
+            //}
         }
         setContent {
             JessChatLexTheme {
