@@ -30,20 +30,33 @@ import androidx.navigation.compose.rememberNavController
 import com.amazonaws.mobile.client.AWSMobileClient
 import com.amazonaws.mobile.client.Callback;
 import com.amazonaws.mobile.client.UserStateDetails
+import com.amazonaws.mobile.config.AWSConfiguration
+import com.amazonaws.mobileconnectors.lex.interactionkit.InteractionClient
+import com.amazonaws.mobileconnectors.lex.interactionkit.Response
+import com.amazonaws.mobileconnectors.lex.interactionkit.config.InteractionConfig
+import com.amazonaws.mobileconnectors.lex.interactionkit.continuations.LexServiceContinuation
+import com.amazonaws.mobileconnectors.lex.interactionkit.listeners.InteractionListener
+import com.amazonaws.regions.Regions
 import com.amazonaws.services.lexrts.AmazonLexRuntime
 import com.amazonaws.services.lexrts.AmazonLexRuntimeClient
+import com.amazonaws.services.lexrts.model.DialogState
 import com.amplifyframework.auth.AuthChannelEventName
 import com.bitpunchlab.android.jesschatlex.userAccount.CreateAccountScreen
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
+import com.amplifyframework.core.AmplifyConfiguration
 import com.amplifyframework.core.InitializationStatus
 import com.amplifyframework.hub.HubChannel
 import com.amplifyframework.kotlin.core.Amplify
+import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
 import com.bitpunchlab.android.jesschatlex.main.MainScreen
 import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import org.json.JSONException
+import org.json.JSONObject
+import java.lang.Exception
 
 class MainActivity : ComponentActivity() {
 
@@ -53,6 +66,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         //configureAmplify(applicationContext)
         userInfoViewModel = ViewModelProvider(this).get(UserInfoViewModel::class.java)
+
+        //Amplify.configure({ object : AmplifyConfiguration() {
+        //    aws_project_region: 'us-east-1'
+        //}
+        //}, applicationContext)
+
+        AmazonLexClient.initializeLex(applicationContext)
 
         CoroutineScope(Dispatchers.IO).launch {
             val authSession = Amplify.Auth.fetchAuthSession(
@@ -69,13 +89,6 @@ class MainActivity : ComponentActivity() {
                 userInfoViewModel._isLoggedIn.value = true
                 Log.i("main activity", "isLogged in ${userInfoViewModel._isLoggedIn.value}")
             }
-            //AmazonLexRuntime
-            //AmazonLexRuntimeClient
-            //AWSMobileClient.getInstance().initialize(applicationContext, Callback<UserStateDetails>{
-            AWSMobileClient.getInstance().initialize(applicationContext, Callback<UserStateDetails> {
-                
-            })
-            //}
         }
         setContent {
             JessChatLexTheme {
@@ -84,6 +97,53 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+/*
+    AWSMobileClient.getInstance().initialize(this, new Callback<UserStateDetails>() {
+        @Override
+        public void onResult(UserStateDetails result) {
+            Log.d(TAG, "initialize.onResult, userState: " + result.getUserState().toString());
+
+            // Identity ID is not available until we make a call to get credentials, which also
+            // caches identity ID.
+            AWSMobileClient.getInstance().getCredentials();
+
+            String identityId = AWSMobileClient.getInstance().getIdentityId();
+            Log.d(TAG, "identityId: " + identityId);
+            String botName = null;
+            String botAlias = null;
+            String botRegion = null;
+            JSONObject lexConfig;
+            try {
+                lexConfig = AWSMobileClient.getInstance().getConfiguration().optJsonObject("Lex");
+                lexConfig = lexConfig.getJSONObject(lexConfig.keys().next());
+
+                botName = lexConfig.getString("Name");
+                botAlias = lexConfig.getString("Alias");
+                botRegion = lexConfig.getString("Region");
+            } catch (JSONException e) {
+                Log.e(TAG, "onResult: Failed to read configuration", e);
+            }
+
+            InteractionConfig lexInteractionConfig = new InteractionConfig(
+                botName,
+                botAlias,
+                identityId);
+
+            lexInteractionClient = new InteractionClient(getApplicationContext(),
+            AWSMobileClient.getInstance(),
+            Regions.fromName(botRegion),
+            lexInteractionConfig);
+
+            lexInteractionClient.setAudioPlaybackListener(audioPlaybackListener);
+            lexInteractionClient.setInteractionListener(interactionListener);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    userTextInput.setEnabled(true);
+                }
+            });
+        }
+*/
 }
 
 @Composable
@@ -141,6 +201,10 @@ private suspend fun authListening() : Boolean =
         }
     }
 }
+
+
+
+
 
 @Preview(showBackground = true)
 @Composable

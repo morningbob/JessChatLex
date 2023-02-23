@@ -14,6 +14,12 @@
     "categories": {
       "auth": {
         "jesschatamplifyaf85d70a": {}
+      },
+      "interactions": {
+        "lex": {
+          "deploymentBucketName": "amplify-jesschatamplify-dev-131224-deployment",
+          "s3Key": "amplify-builds/lex-696e6c4f30752f30364a-build.zip"
+        }
       }
     }
   }

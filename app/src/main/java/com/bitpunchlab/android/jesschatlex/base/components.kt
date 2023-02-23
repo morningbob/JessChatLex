@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.bitpunchlab.android.jesschatlex.R
+import com.bitpunchlab.android.jesschatlex.helpers.WhoSaid
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 
 @Composable
@@ -178,4 +179,9 @@ fun CustomDialog(title: String, message: String, setStartDialog: (Boolean) -> Un
             }
         }
     }
+}
+
+@Composable
+fun MessageText(whoSaid: WhoSaid, message: String) {
+
 }
