@@ -19,4 +19,6 @@ object JessChatLex {
     //val buttonTextColor = Color(0xFF09b559)
     val dialogBackgroundColor = Color(0xFFb6f0d4)
     val dialogMessageColor = Color(0xFF243bed)
+
+    val messageColorUser = Color(0xFF088a36)
 }

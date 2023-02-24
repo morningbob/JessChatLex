@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -47,16 +48,22 @@ fun LoginScreen(navController: NavHostController,
 
     // to enable the send button or not, send to aws
     val shouldEnable = emailErrorState == "" && passwordErrorState == ""
+    // to control to display the progress bar or not
+    var loadProgressBar by remember { mutableStateOf(false) }
+    val loadingAlpha = if (loadProgressBar) 1f else 0f
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
         var onSendClicked = {
+            loadProgressBar = true
             //Log.i("onSendClicked", "received in main")
             CoroutineScope(Dispatchers.IO).launch {
                 if (loginUser(emailState, passwordState)) {
                     Log.i("login screen", "success passed to screen")
+                    loadProgressBar = false
                     navController.navigate(Main.route)
                 } else {
                     Log.i("login screen", "failure passed to screen")
@@ -72,6 +79,17 @@ fun LoginScreen(navController: NavHostController,
         val printInputs = {
             Log.i("email", emailState)
             Unit
+        }
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(loadingAlpha),
+
+        ) {
+            //CircularProgressIndicator()
+            CustomCircularProgressBar()
         }
 
         Column(

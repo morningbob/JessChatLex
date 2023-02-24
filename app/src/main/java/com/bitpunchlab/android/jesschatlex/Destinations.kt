@@ -17,3 +17,7 @@ object CreateAccount : Destinations {
 object Main : Destinations {
     override val route: String = "Main"
 }
+
+object MessagesRecord : Destinations {
+    override val route: String = "MessagesRecord"
+}

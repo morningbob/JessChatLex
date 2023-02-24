@@ -182,6 +182,16 @@ fun CustomDialog(title: String, message: String, setStartDialog: (Boolean) -> Un
 }
 
 @Composable
+fun CustomCircularProgressBar() {
+    CircularProgressIndicator(
+        modifier = Modifier.size(100.dp),
+        color = JessChatLex.buttonTextColor,
+        strokeWidth = 10.dp)
+
+}
+
+
+@Composable
 fun MessageText(whoSaid: WhoSaid, message: String) {
 
 }

@@ -1,23 +1,34 @@
 package com.bitpunchlab.android.jesschatlex.userAccount
 
+import android.app.Application
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.amplifyframework.auth.AuthChannelEventName
 import com.amplifyframework.core.InitializationStatus
 import com.amplifyframework.hub.HubChannel
 import com.amplifyframework.kotlin.core.Amplify
+import com.bitpunchlab.android.jesschatlex.database.ChatDao
+import com.bitpunchlab.android.jesschatlex.database.ChatDatabase
 import com.bitpunchlab.android.jesschatlex.models.Message
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
-class UserInfoViewModel : ViewModel() {
-
-    var _isLoggedIn = MutableStateFlow<Boolean>(false)
+class UserInfoViewModel(application: Application) : AndroidViewModel(application) {
+//class UserInfoViewModel : ViewModel() {
+    val _isLoggedIn = MutableStateFlow<Boolean>(false)
     val isLoggedIn : StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
-    //var messageList
-    var messageList = ArrayList<Message>()
+    var currentMessageList = ArrayList<Message>()
+
+    @OptIn(InternalCoroutinesApi::class)
+    val database = ChatDatabase.getInstance(application.applicationContext)
+
+    val _allMessages = MutableStateFlow<List<Message>>(emptyList())
+    var allMessages : StateFlow<List<Message>> = _allMessages
+    //var allMessages = database.chatDAO.getAllMessage()
 
     init {
         viewModelScope.launch {
@@ -81,11 +92,34 @@ class UserInfoViewModel : ViewModel() {
         }
     }
 
+    fun getAllMessages() {
+        CoroutineScope(Dispatchers.IO).launch {
+            database.chatDAO.getAllMessage().collect() { messages ->
+                _allMessages.value = messages
+            }
+        }
+    }
+
+    fun insertMessage(message: Message) {
+        viewModelScope.launch {
+            database.chatDAO.insertMessages(message)
+        }
+    }
 
     private fun updateIsLoggedIn(newValue: Boolean) {
         if (isLoggedIn.value != newValue) {
             Log.i("user info", "update isLoggedIn $newValue")
             _isLoggedIn.value = newValue
         }
+    }
+}
+
+class UserInfoViewModelFactory(private val application: Application)
+    : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(UserInfoViewModel::class.java)) {
+            return UserInfoViewModel(application) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

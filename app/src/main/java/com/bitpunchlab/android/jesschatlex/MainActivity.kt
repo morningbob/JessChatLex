@@ -49,6 +49,7 @@ import com.amplifyframework.hub.HubChannel
 import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
 import com.bitpunchlab.android.jesschatlex.main.MainScreen
+import com.bitpunchlab.android.jesschatlex.main.MessagesRecordScreen
 import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -164,6 +165,9 @@ fun JessNavigation() {
         }
         composable(Main.route) {
             MainScreen(navController)
+        }
+        composable(MessagesRecord.route) {
+            MessagesRecordScreen(navController)
         }
     }
 }

@@ -22,9 +22,9 @@ import java.lang.Exception
 object AmazonLexClient {
 
     var lexClient : InteractionClient? = null
-    //val messageList = ArrayList<String>()
-    private val _messagesState = MutableStateFlow<String>("")
-    val messagesState : StateFlow<String> = _messagesState.asStateFlow()
+
+    private val _messageState = MutableStateFlow<String>("")
+    val messageState : StateFlow<String> = _messageState.asStateFlow()
 
     fun initializeLex(context: Context) {
         AWSMobileClient.getInstance().initialize(context, object :
@@ -69,7 +69,6 @@ object AmazonLexClient {
 
                 //lexClient.setAudioPlaybackListener()
                 lexClient!!.setInteractionListener(interactionListener)
-
             }
 
             override fun onError(e: Exception?) {
@@ -85,7 +84,7 @@ object AmazonLexClient {
             val responseText = response?.textResponse
             responseText?.let {
                 //messageList.add(responseText)
-                _messagesState.value = responseText
+                _messageState.value = responseText
             }
             Log.i("lex listener", "response (ready): $responseText")
         }
@@ -93,7 +92,7 @@ object AmazonLexClient {
         override fun promptUserToRespond(response: Response?, continuation: LexServiceContinuation?) {
             val responseText = response?.textResponse
             responseText?.let {
-                _messagesState.value = responseText
+                _messageState.value = responseText
             }
             Log.i("lex listener", "response (prompt): $responseText")
         }

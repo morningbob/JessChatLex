@@ -3,6 +3,7 @@ package com.bitpunchlab.android.jesschatlex.userAccount
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +13,7 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,16 +41,30 @@ fun CreateAccountScreen(navController: NavHostController,
     val passwordErrorState by registerViewModel.passwordErrorState.collectAsState()
     val confirmPassErrorState by registerViewModel.confirmPassErrorState.collectAsState()
 
+    var loadProgressBar by remember { mutableStateOf(false) }
+    var loadingAlpha = if (loadProgressBar) 1f else 0f
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(loadingAlpha),
+
+            ) {
+            //CircularProgressIndicator()
+            CustomCircularProgressBar()
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -56,6 +72,7 @@ fun CreateAccountScreen(navController: NavHostController,
             ) {
 
                 var onSendClicked = {
+                    loadProgressBar = true
                     Log.i("onSendClicked", "received")
                     // should validate before sending
                     CoroutineScope(Dispatchers.IO).launch {
@@ -63,6 +80,7 @@ fun CreateAccountScreen(navController: NavHostController,
                             // alert user success
                             Log.i("create screen", "success result passed to screen")
                             // in this case, navigate to main screen
+                            loadProgressBar = false
                             navController.navigate(Main.route)
                         } else {
                             // alert user failure
