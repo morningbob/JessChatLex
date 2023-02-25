@@ -1,5 +1,6 @@
 package com.bitpunchlab.android.jesschatlex.main
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -28,12 +29,14 @@ import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.Login
 import com.bitpunchlab.android.jesschatlex.MessagesRecord
 import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
+import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
 import com.bitpunchlab.android.jesschatlex.base.CustomCircularProgressBar
 import com.bitpunchlab.android.jesschatlex.base.GeneralButton
 import com.bitpunchlab.android.jesschatlex.helpers.WhoSaid
 import com.bitpunchlab.android.jesschatlex.models.Message
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModel
+import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,7 +44,13 @@ import java.util.*
 
 @Composable
 fun MainScreen(navController: NavHostController,
-    userInfoViewModel: UserInfoViewModel = viewModel(LocalContext.current as ComponentActivity)) {
+    userInfoViewModel: UserInfoViewModel,) {
+    //userInfoViewModel: UserInfoViewModel = viewModel(LocalContext.current as ComponentActivity)) {
+    //var userInfoViewModel : UserInfoViewModel? = null
+    //LaunchedEffect(Unit) {
+      //  userInfoViewModel =
+      //      viewModel(factory = UserInfoViewModelFactory(LocalContext.current.applicationContext as Application))
+    //}
 
     var loadProgressBar by remember { mutableStateOf(false) }
     var loadingAlpha = if (loadProgressBar) 1f else 0f
@@ -50,6 +59,8 @@ fun MainScreen(navController: NavHostController,
     var input by remember { mutableStateOf("") }
 
     val messageback by AmazonLexClient.messageState.collectAsState()
+
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = messageback) {
         if (messageback != "") {
@@ -64,7 +75,7 @@ fun MainScreen(navController: NavHostController,
                 message
             )
             // here we save it in local database
-            //userInfoViewModel.insertMessage(message)
+            userInfoViewModel.insertMessage(scope, message)
 
             // whenever there is a messageback triggered, the view is recreated (part of it)
             // we hide the box
@@ -133,7 +144,11 @@ fun MainScreen(navController: NavHostController,
                 onClick = {
                     loadProgressBar = true
                     AmazonLexClient.sendMessage(input)
-                    userInfoViewModel.currentMessageList.add(Message(UUID.randomUUID().toString(), WhoSaid.User, input))
+                    val message = Message(UUID.randomUUID().toString(), WhoSaid.User, input)
+                    userInfoViewModel.currentMessageList.add(message)
+                    //CoroutineScope(Dispatchers.IO).launch {
+                    userInfoViewModel.insertMessage(scope, message)
+                    //}
                     input = ""
                 },
                 shouldEnable = true,
@@ -154,7 +169,7 @@ fun MainScreen(navController: NavHostController,
 
             GeneralButton(
                 title = "Logout",
-                onClick = { CoroutineScope(Dispatchers.IO).launch { logoutUser() } },
+                onClick = { CoroutineScope(Dispatchers.IO).launch { CognitoClient.logoutUser() } },
                 shouldEnable = true,
                 paddingTop = 10,
                 paddingBottom = 20
@@ -168,42 +183,12 @@ fun MainScreen(navController: NavHostController,
                 .alpha(loadingAlpha),
 
             ) {
-            //CircularProgressIndicator()
             CustomCircularProgressBar()
         }
     }
 }
 
-private suspend fun logoutUser() {
-    val signOutResult = Amplify.Auth.signOut()
 
-    when(signOutResult) {
-        is AWSCognitoAuthSignOutResult.CompleteSignOut -> {
-            // Sign Out completed fully and without errors.
-            Log.i("AuthQuickStart", "Signed out successfully")
-        }
-        is AWSCognitoAuthSignOutResult.PartialSignOut -> {
-            // Sign Out completed with some errors. User is signed out of the device.
-            signOutResult.hostedUIError?.let {
-                Log.e("AuthQuickStart", "HostedUI Error", it.exception)
-                // Optional: Re-launch it.url in a Custom tab to clear Cognito web session.
-
-            }
-            signOutResult.globalSignOutError?.let {
-                Log.e("AuthQuickStart", "GlobalSignOut Error", it.exception)
-                // Optional: Use escape hatch to retry revocation of it.accessToken.
-            }
-            signOutResult.revokeTokenError?.let {
-                Log.e("AuthQuickStart", "RevokeToken Error", it.exception)
-                // Optional: Use escape hatch to retry revocation of it.refreshToken.
-            }
-        }
-        is AWSCognitoAuthSignOutResult.FailedSignOut -> {
-            // Sign Out failed with an exception, leaving the user signed in.
-            Log.e("AuthQuickStart", "Sign out Failed", signOutResult.exception)
-        }
-    }
-}
 /*
             items(20) { index ->
                 Text(

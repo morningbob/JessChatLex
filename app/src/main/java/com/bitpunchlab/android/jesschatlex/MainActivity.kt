@@ -1,5 +1,6 @@
 package com.bitpunchlab.android.jesschatlex
 
+import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -22,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLexTheme
@@ -51,6 +53,7 @@ import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
 import com.bitpunchlab.android.jesschatlex.main.MainScreen
 import com.bitpunchlab.android.jesschatlex.main.MessagesRecordScreen
 import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModel
+import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -94,57 +97,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             JessChatLexTheme {
                 // A surface container using the 'background' color from the theme
-                JessNavigation()
+                JessNavigation(application)
             }
         }
     }
-/*
-    AWSMobileClient.getInstance().initialize(this, new Callback<UserStateDetails>() {
-        @Override
-        public void onResult(UserStateDetails result) {
-            Log.d(TAG, "initialize.onResult, userState: " + result.getUserState().toString());
-
-            // Identity ID is not available until we make a call to get credentials, which also
-            // caches identity ID.
-            AWSMobileClient.getInstance().getCredentials();
-
-            String identityId = AWSMobileClient.getInstance().getIdentityId();
-            Log.d(TAG, "identityId: " + identityId);
-            String botName = null;
-            String botAlias = null;
-            String botRegion = null;
-            JSONObject lexConfig;
-            try {
-                lexConfig = AWSMobileClient.getInstance().getConfiguration().optJsonObject("Lex");
-                lexConfig = lexConfig.getJSONObject(lexConfig.keys().next());
-
-                botName = lexConfig.getString("Name");
-                botAlias = lexConfig.getString("Alias");
-                botRegion = lexConfig.getString("Region");
-            } catch (JSONException e) {
-                Log.e(TAG, "onResult: Failed to read configuration", e);
-            }
-
-            InteractionConfig lexInteractionConfig = new InteractionConfig(
-                botName,
-                botAlias,
-                identityId);
-
-            lexInteractionClient = new InteractionClient(getApplicationContext(),
-            AWSMobileClient.getInstance(),
-            Regions.fromName(botRegion),
-            lexInteractionConfig);
-
-            lexInteractionClient.setAudioPlaybackListener(audioPlaybackListener);
-            lexInteractionClient.setInteractionListener(interactionListener);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    userTextInput.setEnabled(true);
-                }
-            });
-        }
-*/
 }
 
 @Composable
@@ -153,21 +109,22 @@ fun Greeting(name: String) {
 }
 
 @Composable
-fun JessNavigation() {
+fun JessNavigation(application: Application) {
     val navController = rememberNavController()
+    val userInfoViewModel : UserInfoViewModel = viewModel(factory = UserInfoViewModelFactory(application))
 
     NavHost(navController = navController, startDestination = Login.route) {
         composable(Login.route) {
-            LoginScreen(navController)
+            LoginScreen(navController, userInfoViewModel)
         }
         composable(CreateAccount.route) {
-            CreateAccountScreen(navController)
+            CreateAccountScreen(navController, userInfoViewModel)
         }
         composable(Main.route) {
-            MainScreen(navController)
+            MainScreen(navController, userInfoViewModel)
         }
         composable(MessagesRecord.route) {
-            MessagesRecordScreen(navController)
+            MessagesRecordScreen(navController, userInfoViewModel)
         }
     }
 }
@@ -205,10 +162,6 @@ private suspend fun authListening() : Boolean =
         }
     }
 }
-
-
-
-
 
 @Preview(showBackground = true)
 @Composable

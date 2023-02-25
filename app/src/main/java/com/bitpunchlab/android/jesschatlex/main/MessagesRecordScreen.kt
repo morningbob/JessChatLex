@@ -2,6 +2,7 @@ package com.bitpunchlab.android.jesschatlex.main
 
 import android.app.Application
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.MaterialTheme
@@ -21,14 +22,15 @@ import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModel
 import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModelFactory
 
 @Composable
-fun MessagesRecordScreen(navController: NavHostController) {
+fun MessagesRecordScreen(navController: NavHostController,
+                         userInfoViewModel: UserInfoViewModel) {
     // a list to display all messages
     // from the oldest to the newest
     // scroll to the newest automatically
     // load records in user info model
     // watch the list here
-    val userInfoViewModel : UserInfoViewModel = viewModel(factory =
-    UserInfoViewModelFactory(LocalContext.current.applicationContext as Application))
+    //val userInfoViewModel : UserInfoViewModel = viewModel(factory =
+    //UserInfoViewModelFactory(LocalContext.current.applicationContext as Application))
     LaunchedEffect(Unit) {
         userInfoViewModel.getAllMessages()
     }
@@ -36,7 +38,7 @@ fun MessagesRecordScreen(navController: NavHostController) {
     val allMessages by userInfoViewModel.allMessages.collectAsState()
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background,
     ) {
         Column(modifier = Modifier.fillMaxWidth(0.8f)) {

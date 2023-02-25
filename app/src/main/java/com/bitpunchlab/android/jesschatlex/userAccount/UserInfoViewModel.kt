@@ -31,7 +31,7 @@ class UserInfoViewModel(application: Application) : AndroidViewModel(application
     //var allMessages = database.chatDAO.getAllMessage()
 
     init {
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.Default).launch {
             Amplify.Hub.subscribe(HubChannel.AUTH).collect {
                 when (it.name) {
                     // this is the case when user logged in previously
@@ -100,8 +100,9 @@ class UserInfoViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun insertMessage(message: Message) {
-        viewModelScope.launch {
+    fun insertMessage(uiScope: CoroutineScope,  message: Message) {
+        CoroutineScope(Dispatchers.IO).launch {
+            //withContext(uiScope.coroutineContext) { // Use instead of the default context
             database.chatDAO.insertMessages(message)
         }
     }

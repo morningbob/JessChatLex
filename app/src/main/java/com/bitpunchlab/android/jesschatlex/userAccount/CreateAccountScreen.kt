@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthException
@@ -25,24 +26,41 @@ import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.Login
 import com.bitpunchlab.android.jesschatlex.Main
 import com.bitpunchlab.android.jesschatlex.R
+import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
 import com.bitpunchlab.android.jesschatlex.base.*
 import kotlinx.coroutines.*
 
 @Composable
 fun CreateAccountScreen(navController: NavHostController,
-    registerViewModel: RegisterViewModel = viewModel(LocalContext.current as ComponentActivity)) {
-
-    val nameState by registerViewModel.nameState.collectAsState()
+    userInfoViewModel: UserInfoViewModel,
+    registerViewModel: RegisterViewModel = RegisterViewModel(SavedStateHandle())
+) {
+    val nameState by registerViewModel.emailState.collectAsState()
     val emailState by registerViewModel.emailState.collectAsState()
     val passwordState by registerViewModel.passwordState.collectAsState()
-    val confirmPassState by registerViewModel.confirmPassState.collectAsState()
-    val nameErrorState by registerViewModel.nameErrorState.collectAsState()
+    val confirmPassState by registerViewModel.passwordState.collectAsState()
+    val nameErrorState by registerViewModel.emailErrorState.collectAsState()
     val emailErrorState by registerViewModel.emailErrorState.collectAsState()
     val passwordErrorState by registerViewModel.passwordErrorState.collectAsState()
-    val confirmPassErrorState by registerViewModel.confirmPassErrorState.collectAsState()
+    val confirmPassErrorState by registerViewModel.passwordErrorState.collectAsState()
+    val shouldNavigateMain by registerViewModel.shouldNavigateMain.collectAsState()
+    val shouldNavigateLogin by registerViewModel.shouldNavigateLogin.collectAsState()
+    val loadingAlpha by registerViewModel.loadingAlpha.collectAsState()
 
-    var loadProgressBar by remember { mutableStateOf(false) }
-    var loadingAlpha = if (loadProgressBar) 1f else 0f
+    // navigate to main page if the user successfully created the account
+    // or when user navigate to this page by back button
+    // but he is already logged in
+    //val loginState by userInfoViewModel.isLoggedIn.collectAsState()
+    LaunchedEffect(key1 = shouldNavigateMain) {
+        if (shouldNavigateMain) {
+            navController.navigate(Main.route)
+        }
+    }
+    LaunchedEffect(key1 = shouldNavigateLogin) {
+        if (shouldNavigateLogin) {
+            navController.navigate(Login.route)
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -55,7 +73,6 @@ fun CreateAccountScreen(navController: NavHostController,
                 .alpha(loadingAlpha),
 
             ) {
-            //CircularProgressIndicator()
             CustomCircularProgressBar()
         }
         Column(
@@ -72,25 +89,10 @@ fun CreateAccountScreen(navController: NavHostController,
             ) {
 
                 var onSendClicked = {
-                    loadProgressBar = true
-                    Log.i("onSendClicked", "received")
-                    // should validate before sending
-                    CoroutineScope(Dispatchers.IO).launch {
-                        if (registerUser(nameState, emailState, passwordState)) {
-                            // alert user success
-                            Log.i("create screen", "success result passed to screen")
-                            // in this case, navigate to main screen
-                            loadProgressBar = false
-                            navController.navigate(Main.route)
-                        } else {
-                            // alert user failure
-                            Log.i("create screen", "failure result passed to screen")
-                        }
-                    }
-                    Unit
+                    registerViewModel.registerUser()
                 }
                 var onLoginClicked = {
-                    navController.navigate(Login.route)
+                    registerViewModel.navigateLogin()
                 }
 
                 HeaderImage(
@@ -99,31 +101,26 @@ fun CreateAccountScreen(navController: NavHostController,
                 )
                 TitleText(title = "Create Account", paddingTop = 30, paddingBottom = 30)
                 Column(horizontalAlignment = Alignment.Start) {
-                    //DescriptionTitleText(title = "Name", paddingTop = 10, paddingBottom = 0)
                     UserInputTextField(title = "Name", content = nameState, hide = false, paddingTop = 10, paddingBottom = 0
                     ) { registerViewModel.updateName(it) }
                     ErrorText(error = nameErrorState)
-                    //DescriptionTitleText(title = "Email", paddingTop = 10, paddingBottom = 0)
                     UserInputTextField(title = "Email", content = emailState, hide = false, paddingTop = 10, paddingBottom = 0
                     ) { registerViewModel.updateEmail(it) }
                     ErrorText(error = emailErrorState)
-                    //DescriptionTitleText(title = "Password", paddingTop = 10, paddingBottom = 0)
                     UserInputTextField(title = "Password", content = passwordState, hide = true, paddingTop = 10, paddingBottom = 0
                     ) { registerViewModel.updatePassword(it) }
                     ErrorText(error = passwordErrorState)
-                    //DescriptionTitleText( title = "Confirm Password", paddingTop = 10, paddingBottom = 0)
                     UserInputTextField(title = "Confirm Password", content = confirmPassState, hide = true,
                         paddingTop = 10, paddingBottom = 0) {
                         registerViewModel.updateConfirmPassword(it)
                     }
                     ErrorText(error = confirmPassErrorState)
-                    //DescriptionTitleText(title = , paddingTop = , paddingBottom = )
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     GeneralButton(
                         title = "Send",
                         onClick = onSendClicked,
-                        shouldEnable = false,
+                        shouldEnable = true,
                         paddingTop = 30,
                         paddingBottom = 20
                     )
@@ -140,24 +137,6 @@ fun CreateAccountScreen(navController: NavHostController,
     }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
-private suspend fun registerUser(name: String, email: String, password: String) : Boolean =
-    suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
-        val options = AuthSignUpOptions.builder()
-            .userAttribute(AuthUserAttributeKey.email(), email)
-            .userAttribute(AuthUserAttributeKey.name(), name)
-            .build()
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val result = Amplify.Auth.signUp(username = email, password = password, options)
-                Log.i("AuthQuickStart", "Result: $result")
-                cancellableContinuation.resume(true) {}
-            } catch (error: AuthException) {
-                Log.e("AuthQuickStart", "Sign up failed", error)
-                cancellableContinuation.resume(false) {}
-            }
-    }
-}
 
 
 

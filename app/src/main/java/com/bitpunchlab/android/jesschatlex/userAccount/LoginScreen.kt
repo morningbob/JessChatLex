@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthException
@@ -19,17 +20,96 @@ import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.CreateAccount
 import com.bitpunchlab.android.jesschatlex.Main
 import com.bitpunchlab.android.jesschatlex.R
+import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
 import com.bitpunchlab.android.jesschatlex.base.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-
 @Composable
 fun LoginScreen(navController: NavHostController,
-                loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity),
-                userInfoViewModel: UserInfoViewModel = viewModel(LocalContext.current as ComponentActivity)
+                userInfoViewModel: UserInfoViewModel,
+                loginViewModel: LoginViewModel = LoginViewModel(),
+    //userInfoViewModel: UserInfoViewModel = viewModel(LocalContext.current as ComponentActivity)
+) {
+
+    val emailState by loginViewModel.emailState.collectAsState()
+    val passwordState by loginViewModel.passwordState.collectAsState()
+    val emailErrorState by loginViewModel.emailErrorState.collectAsState()
+    val passwordErrorState by loginViewModel.passwordErrorState.collectAsState()
+    val shouldNavigateMain by loginViewModel.shouldNavigateMain.collectAsState()
+    val shouldNavigateSignUp by loginViewModel.shouldNavigateSignUp.collectAsState()
+    val loadingAlpha by loginViewModel.loadingAlpha.collectAsState()
+
+    // LaunchedEffect is used to run code that won't trigger recomposition of the view
+    LaunchedEffect(key1 = shouldNavigateMain) {
+        if (shouldNavigateMain) {
+            navController.navigate(Main.route)
+        }
+    }
+    LaunchedEffect(key1 = shouldNavigateSignUp) {
+        if (shouldNavigateSignUp) {
+            navController.navigate(CreateAccount.route)
+        }
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colors.background
+    ) {
+        var onSendClicked = {
+            loginViewModel.loginUser()
+        }
+        var onSignUpClicked = {
+            loginViewModel.navigateSignUp()
+        }
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(loadingAlpha),
+
+            ) {
+            CustomCircularProgressBar()
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.verticalScroll(rememberScrollState())
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                HeaderImage(resource = R.mipmap.login, description = "Login Icon",
+                    paddingTop = 30, paddingBottom = 0)
+                TitleText(title = "Login", paddingTop = 30, paddingBottom = 30)
+            }
+            Column(horizontalAlignment = Alignment.Start) {
+                //TextField(value = loginViewModel.email, onValueChange = { loginViewModel.updateEmail(it) })
+                UserInputTextField(title = "Email", content = emailState, hide = false, paddingTop = 10, paddingBottom = 0
+                ) { loginViewModel.updateEmail(it) }
+                ErrorText(error = emailErrorState)
+                UserInputTextField(title = "Password", content = passwordState, hide = true, paddingTop = 10, paddingBottom = 0
+                ) { loginViewModel.updatePassword(it) }
+                ErrorText(error = passwordErrorState)
+            }
+            GeneralButton(title = "Send", onClick = onSendClicked, paddingTop = 30, paddingBottom = 0, shouldEnable = true)
+            GeneralButton(title = "Sign Up", onClick = onSignUpClicked, paddingTop = 10, paddingBottom = 20, shouldEnable = true)
+            Button(onClick = {
+                Log.i("logged in is ", userInfoViewModel.isLoggedIn.value.toString())
+            }) {
+                Text("test")
+            }
+        }
+    }
+}
+/*
+@Composable
+fun LoginScreen(navController: NavHostController,
+                userInfoViewModel: UserInfoViewModel,
+                loginViewModel: LoginViewModel = viewModel(),
+    //userInfoViewModel: UserInfoViewModel = viewModel(LocalContext.current as ComponentActivity)
 ) {
 
     val loginState by userInfoViewModel.isLoggedIn.collectAsState()
@@ -61,7 +141,7 @@ fun LoginScreen(navController: NavHostController,
             loadProgressBar = true
             //Log.i("onSendClicked", "received in main")
             CoroutineScope(Dispatchers.IO).launch {
-                if (loginUser(emailState, passwordState)) {
+                if (CognitoClient.loginUser(emailState, passwordState)) {
                     Log.i("login screen", "success passed to screen")
                     loadProgressBar = false
                     navController.navigate(Main.route)
@@ -125,30 +205,8 @@ fun LoginScreen(navController: NavHostController,
         }
     }
 }
+*/
 
-private suspend fun loginUser(email: String, password: String) : Boolean =
-    suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
-        val map = HashMap<String, String>()
-        map.put("email", email)
-        val options = AWSCognitoAuthSignInOptions.builder()
-            //.authFlowType(AuthFlowType.USER_PASSWORD_AUTH)
-            .metadata(map)
-            .build()
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val result = Amplify.Auth.signIn(username = email, password = password)
-                if (result.isSignedIn) {
-                    Log.i("AuthQuickstart", "Sign in succeeded")
-                } else {
-                    Log.e("AuthQuickstart", "Sign in not complete")
-                }
-            } catch (error: AuthException) {
-                Log.e("AuthQuickstart", "Sign in failed", error)
-            }
-        }
-
-}
 
 
 /*

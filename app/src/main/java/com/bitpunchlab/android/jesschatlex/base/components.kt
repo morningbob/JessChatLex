@@ -25,9 +25,8 @@ import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 fun UserInputTextField(title: String, content: String, hide: Boolean,
                        paddingTop: Int, paddingBottom: Int,
                         call: (String) -> Unit)  {
-    //var inputText by remember { mutableStateOf(TextFieldValue("")) }
 
-    val keyboardType = if (hide) { KeyboardType.Password} else { KeyboardType.Text }
+    val keyboardType = if (hide) { KeyboardType.Password } else { KeyboardType.Text }
 
     OutlinedTextField(
         label = { Text(text = title) },
@@ -35,9 +34,6 @@ fun UserInputTextField(title: String, content: String, hide: Boolean,
         onValueChange = { newText ->
             call.invoke(newText)
         },
-        //onValueChange = { newText: TextFieldValue ->
-        //    inputText = newText
-        //},
 
         modifier = Modifier
             .fillMaxWidth()
@@ -50,8 +46,6 @@ fun UserInputTextField(title: String, content: String, hide: Boolean,
         cursorColor = MaterialTheme.colors.primaryVariant
     ),
     )
-
-    //return inputText
 }
 
 @Composable
