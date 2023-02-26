@@ -1,5 +1,6 @@
 package com.bitpunchlab.android.jesschatlex.userAccount
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 
@@ -45,9 +47,6 @@ class RegisterViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
     private val _confirmPassErrorState = MutableStateFlow<String>(" ")
     val confirmPassErrorState : StateFlow<String> = _confirmPassErrorState.asStateFlow()
 
-    var readyRegister = nameErrorState.value == "" && emailErrorState.value == ""
-            && passwordErrorState.value == "" && confirmPassErrorState.value == ""
-
     private val _shouldNavigateMain = MutableStateFlow<Boolean>(false)
     val shouldNavigateMain : StateFlow<Boolean> = _shouldNavigateMain.asStateFlow()
 
@@ -56,6 +55,20 @@ class RegisterViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
     private val _loadingAlpha = MutableStateFlow<Float>(0f)
     val loadingAlpha: StateFlow<Float> = _loadingAlpha.asStateFlow()
+
+    var _readyRegister = MutableStateFlow<Boolean>(false)
+    val readyRegister: StateFlow<Boolean> = _readyRegister.asStateFlow()
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            combine(nameErrorState, emailErrorState, passwordErrorState, confirmPassErrorState)
+            { name, email, password, confirm ->
+                _readyRegister.value = name == "" && email == "" && password == "" && confirm == ""
+            }.collect {
+                Log.i("combine", "readyRegister: $readyRegister")
+            }
+        }
+    }
 
     fun updateName(inputName: String) {
         _nameState.value = inputName

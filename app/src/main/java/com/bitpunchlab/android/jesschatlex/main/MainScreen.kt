@@ -35,8 +35,8 @@ import com.bitpunchlab.android.jesschatlex.base.GeneralButton
 import com.bitpunchlab.android.jesschatlex.helpers.WhoSaid
 import com.bitpunchlab.android.jesschatlex.models.Message
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
-import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModel
-import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModelFactory
+import com.bitpunchlab.android.jesschatlex.userAccount.MainViewModel
+import com.bitpunchlab.android.jesschatlex.userAccount.MainViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,44 +44,13 @@ import java.util.*
 
 @Composable
 fun MainScreen(navController: NavHostController,
-    userInfoViewModel: UserInfoViewModel,) {
+    mainViewModel: MainViewModel,) {
     //userInfoViewModel: UserInfoViewModel = viewModel(LocalContext.current as ComponentActivity)) {
-    //var userInfoViewModel : UserInfoViewModel? = null
-    //LaunchedEffect(Unit) {
-      //  userInfoViewModel =
-      //      viewModel(factory = UserInfoViewModelFactory(LocalContext.current.applicationContext as Application))
-    //}
 
-    var loadProgressBar by remember { mutableStateOf(false) }
-    var loadingAlpha = if (loadProgressBar) 1f else 0f
+    val loadingAlpha by mainViewModel.loadingAlpha.collectAsState()
 
-    val loginState by userInfoViewModel.isLoggedIn.collectAsState()
+    val loginState by mainViewModel.isLoggedIn.collectAsState()
     var input by remember { mutableStateOf("") }
-
-    val messageback by AmazonLexClient.messageState.collectAsState()
-
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(key1 = messageback) {
-        if (messageback != "") {
-            // we keep that current message list because we don't want to
-            // display all messages from the database
-            val message = Message(
-                UUID.randomUUID().toString(),
-                WhoSaid.Lex,
-                messageback
-            )
-            userInfoViewModel.currentMessageList.add(
-                message
-            )
-            // here we save it in local database
-            userInfoViewModel.insertMessage(scope, message)
-
-            // whenever there is a messageback triggered, the view is recreated (part of it)
-            // we hide the box
-            loadProgressBar = false
-        }
-    }
 
     var shouldNavigateRecords by remember { mutableStateOf(false) }
 
@@ -114,14 +83,15 @@ fun MainScreen(navController: NavHostController,
 
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxHeight(0.7f)
+                    .fillMaxHeight(0.65f)
                     .padding(30.dp),
+                horizontalAlignment = Alignment.Start
                 //verticalArrangement = Arrangement.Center,
                 //horizontalAlignment = Alignment.Start
             ) {
                 item {
 
-                    userInfoViewModel.currentMessageList.forEach { message ->
+                    mainViewModel.currentMessageList.forEach { message ->
                         val textColor = if (message.whoSaid == WhoSaid.Lex) { JessChatLex.contentColor }
                             else { JessChatLex.messageColorUser }
                         Text(
@@ -142,13 +112,7 @@ fun MainScreen(navController: NavHostController,
             GeneralButton(
                 title = "Send",
                 onClick = {
-                    loadProgressBar = true
-                    AmazonLexClient.sendMessage(input)
-                    val message = Message(UUID.randomUUID().toString(), WhoSaid.User, input)
-                    userInfoViewModel.currentMessageList.add(message)
-                    //CoroutineScope(Dispatchers.IO).launch {
-                    userInfoViewModel.insertMessage(scope, message)
-                    //}
+                    mainViewModel.sendMessage(input)
                     input = ""
                 },
                 shouldEnable = true,
@@ -160,7 +124,6 @@ fun MainScreen(navController: NavHostController,
                 title = "Chat Record",
                 onClick = {
                     shouldNavigateRecords = true
-                        //navController.navigate(MessagesRecord.route)
                 },
                 shouldEnable = true,
                 paddingTop = 5,
@@ -169,7 +132,7 @@ fun MainScreen(navController: NavHostController,
 
             GeneralButton(
                 title = "Logout",
-                onClick = { CoroutineScope(Dispatchers.IO).launch { CognitoClient.logoutUser() } },
+                onClick = { mainViewModel.logoutUser() },
                 shouldEnable = true,
                 paddingTop = 10,
                 paddingBottom = 20
@@ -187,16 +150,4 @@ fun MainScreen(navController: NavHostController,
         }
     }
 }
-
-
-/*
-            items(20) { index ->
-                Text(
-                    text = "item $index",
-                    modifier = Modifier.height(50.dp),
-                    //textAlign = TextAlign.Start
-                )
-            }
-
-             */
 

@@ -25,11 +25,14 @@ object CognitoClient {
                     val result = Amplify.Auth.signIn(username = email, password = password)
                     if (result.isSignedIn) {
                         Log.i("AuthQuickstart", "Sign in succeeded")
+                        cancellableContinuation.resume(true) {}
                     } else {
                         Log.e("AuthQuickstart", "Sign in not complete")
+                        cancellableContinuation.resume(false) {}
                     }
                 } catch (error: AuthException) {
                     Log.e("AuthQuickstart", "Sign in failed", error)
+                    cancellableContinuation.resume(false) {}
                 }
             }
 

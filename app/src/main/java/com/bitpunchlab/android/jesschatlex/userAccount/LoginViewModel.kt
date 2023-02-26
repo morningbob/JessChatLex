@@ -1,21 +1,14 @@
 package com.bitpunchlab.android.jesschatlex.userAccount
 
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.saveable
 import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class LoginViewModel() : ViewModel() {
+class LoginViewModel : ViewModel() {
 
     private val _emailState = MutableStateFlow<String>("")
     val emailState : StateFlow<String> = _emailState.asStateFlow()
@@ -29,9 +22,8 @@ class LoginViewModel() : ViewModel() {
     private val _passwordErrorState = MutableStateFlow<String>(" ")
     val passwordErrorState : StateFlow<String> = _passwordErrorState.asStateFlow()
 
-    //var readyLogin = emailErrorState.collect() == "" && passwordErrorState.value == ""
-
-    //var emailReady = emailErrorState.collectAsState()
+    private val _readyLogin = MutableStateFlow<Boolean>(false)
+    val readyLogin : StateFlow<Boolean> = _readyLogin.asStateFlow()
 
     private val _shouldNavigateMain = MutableStateFlow<Boolean>(false)
     val shouldNavigateMain : StateFlow<Boolean> = _shouldNavigateMain.asStateFlow()
@@ -41,6 +33,14 @@ class LoginViewModel() : ViewModel() {
 
     private val _loadingAlpha = MutableStateFlow<Float>(0f)
     val loadingAlpha: StateFlow<Float> = _loadingAlpha.asStateFlow()
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            combine(emailErrorState, passwordErrorState) { email, password ->
+                _readyLogin.value = email == "" && password == ""
+            }.collect()
+        }
+    }
 
     fun updateEmail(inputEmail: String) {
         _emailState.value = inputEmail
@@ -72,13 +72,11 @@ class LoginViewModel() : ViewModel() {
             if (CognitoClient.loginUser(email = emailState.value, password = passwordState.value)) {
                 _loadingAlpha.value = 0f
                 // navigate to main
-                _shouldNavigateMain.value = true
+                //_shouldNavigateMain.value = true
+            } else {
+                // display alert
             }
         }
-    }
-
-    fun navigateSignUp() {
-        _shouldNavigateSignUp.value = true
     }
 }
 /*

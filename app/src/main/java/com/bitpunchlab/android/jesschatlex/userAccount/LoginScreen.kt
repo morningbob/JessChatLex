@@ -26,31 +26,29 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.math.log
 
 @Composable
 fun LoginScreen(navController: NavHostController,
-                userInfoViewModel: UserInfoViewModel,
+                mainViewModel: MainViewModel,
                 loginViewModel: LoginViewModel = LoginViewModel(),
     //userInfoViewModel: UserInfoViewModel = viewModel(LocalContext.current as ComponentActivity)
 ) {
-
     val emailState by loginViewModel.emailState.collectAsState()
     val passwordState by loginViewModel.passwordState.collectAsState()
     val emailErrorState by loginViewModel.emailErrorState.collectAsState()
     val passwordErrorState by loginViewModel.passwordErrorState.collectAsState()
-    val shouldNavigateMain by loginViewModel.shouldNavigateMain.collectAsState()
-    val shouldNavigateSignUp by loginViewModel.shouldNavigateSignUp.collectAsState()
+    //val shouldNavigateMain by loginViewModel.shouldNavigateMain.collectAsState()
+    //val shouldNavigateSignUp by loginViewModel.shouldNavigateSignUp.collectAsState()
     val loadingAlpha by loginViewModel.loadingAlpha.collectAsState()
+    val loginState by mainViewModel.isLoggedIn.collectAsState()
 
+    val readyLogin by loginViewModel.readyLogin.collectAsState()
+    //Log.i("Login Screen", "should navigate signup : $shouldNavigateSignUp")
     // LaunchedEffect is used to run code that won't trigger recomposition of the view
-    LaunchedEffect(key1 = shouldNavigateMain) {
-        if (shouldNavigateMain) {
+    LaunchedEffect(key1 = loginState) {
+        if (loginState) {
             navController.navigate(Main.route)
-        }
-    }
-    LaunchedEffect(key1 = shouldNavigateSignUp) {
-        if (shouldNavigateSignUp) {
-            navController.navigate(CreateAccount.route)
         }
     }
 
@@ -62,7 +60,10 @@ fun LoginScreen(navController: NavHostController,
             loginViewModel.loginUser()
         }
         var onSignUpClicked = {
-            loginViewModel.navigateSignUp()
+            //LaunchedEffect(Unit) {
+                //loginViewModel.navigateSignUp()
+            //}
+            navController.navigate(CreateAccount.route)
         }
 
         Box(
@@ -94,10 +95,10 @@ fun LoginScreen(navController: NavHostController,
                 ) { loginViewModel.updatePassword(it) }
                 ErrorText(error = passwordErrorState)
             }
-            GeneralButton(title = "Send", onClick = onSendClicked, paddingTop = 30, paddingBottom = 0, shouldEnable = true)
+            GeneralButton(title = "Send", onClick = onSendClicked, paddingTop = 10, paddingBottom = 0, shouldEnable = readyLogin)
             GeneralButton(title = "Sign Up", onClick = onSignUpClicked, paddingTop = 10, paddingBottom = 20, shouldEnable = true)
             Button(onClick = {
-                Log.i("logged in is ", userInfoViewModel.isLoggedIn.value.toString())
+                Log.i("logged in is ", mainViewModel.isLoggedIn.value.toString())
             }) {
                 Text("test")
             }

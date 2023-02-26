@@ -1,75 +1,40 @@
 package com.bitpunchlab.android.jesschatlex
 
 import android.app.Application
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.get
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLexTheme
-import com.bitpunchlab.android.jesschatlex.userAccount.LoginScreen
 import androidx.navigation.compose.rememberNavController
-import com.amazonaws.mobile.client.AWSMobileClient
-import com.amazonaws.mobile.client.Callback;
-import com.amazonaws.mobile.client.UserStateDetails
-import com.amazonaws.mobile.config.AWSConfiguration
-import com.amazonaws.mobileconnectors.lex.interactionkit.InteractionClient
-import com.amazonaws.mobileconnectors.lex.interactionkit.Response
-import com.amazonaws.mobileconnectors.lex.interactionkit.config.InteractionConfig
-import com.amazonaws.mobileconnectors.lex.interactionkit.continuations.LexServiceContinuation
-import com.amazonaws.mobileconnectors.lex.interactionkit.listeners.InteractionListener
-import com.amazonaws.regions.Regions
-import com.amazonaws.services.lexrts.AmazonLexRuntime
-import com.amazonaws.services.lexrts.AmazonLexRuntimeClient
-import com.amazonaws.services.lexrts.model.DialogState
 import com.amplifyframework.auth.AuthChannelEventName
-import com.bitpunchlab.android.jesschatlex.userAccount.CreateAccountScreen
-import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
-import com.amplifyframework.core.AmplifyConfiguration
 import com.amplifyframework.core.InitializationStatus
 import com.amplifyframework.hub.HubChannel
 import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
 import com.bitpunchlab.android.jesschatlex.main.MainScreen
 import com.bitpunchlab.android.jesschatlex.main.MessagesRecordScreen
-import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModel
-import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModelFactory
+import com.bitpunchlab.android.jesschatlex.userAccount.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import org.json.JSONException
-import org.json.JSONObject
-import java.lang.Exception
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var userInfoViewModel: UserInfoViewModel
+    private lateinit var mainViewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //configureAmplify(applicationContext)
-        userInfoViewModel = ViewModelProvider(this).get(UserInfoViewModel::class.java)
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         //Amplify.configure({ object : AmplifyConfiguration() {
         //    aws_project_region: 'us-east-1'
@@ -90,8 +55,8 @@ class MainActivity : ComponentActivity() {
             // because listening to auth state change, doesn't not detect the first state
             if (authSession.isSignedIn) {
                 Log.i("main activity", "set sign in as true")
-                userInfoViewModel._isLoggedIn.value = true
-                Log.i("main activity", "isLogged in ${userInfoViewModel._isLoggedIn.value}")
+                mainViewModel._isLoggedIn.value = true
+                Log.i("main activity", "isLogged in ${mainViewModel._isLoggedIn.value}")
             }
         }
         setContent {
@@ -111,20 +76,20 @@ fun Greeting(name: String) {
 @Composable
 fun JessNavigation(application: Application) {
     val navController = rememberNavController()
-    val userInfoViewModel : UserInfoViewModel = viewModel(factory = UserInfoViewModelFactory(application))
+    val mainViewModel : MainViewModel = viewModel(factory = MainViewModelFactory(application))
 
     NavHost(navController = navController, startDestination = Login.route) {
         composable(Login.route) {
-            LoginScreen(navController, userInfoViewModel)
+            LoginScreen(navController, mainViewModel)
         }
         composable(CreateAccount.route) {
-            CreateAccountScreen(navController, userInfoViewModel)
+            CreateAccountScreen(navController, mainViewModel)
         }
         composable(Main.route) {
-            MainScreen(navController, userInfoViewModel)
+            MainScreen(navController, mainViewModel)
         }
         composable(MessagesRecord.route) {
-            MessagesRecordScreen(navController, userInfoViewModel)
+            MessagesRecordScreen(navController, mainViewModel)
         }
     }
 }

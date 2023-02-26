@@ -1,9 +1,9 @@
 package com.bitpunchlab.android.jesschatlex.main
 
-import android.app.Application
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -12,43 +12,48 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.bitpunchlab.android.jesschatlex.helpers.WhoSaid
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
-import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModel
-import com.bitpunchlab.android.jesschatlex.userAccount.UserInfoViewModelFactory
+import com.bitpunchlab.android.jesschatlex.userAccount.MainViewModel
 
 @Composable
 fun MessagesRecordScreen(navController: NavHostController,
-                         userInfoViewModel: UserInfoViewModel) {
+                         mainViewModel: MainViewModel
+) {
     // a list to display all messages
     // from the oldest to the newest
     // scroll to the newest automatically
     // load records in user info model
     // watch the list here
-    //val userInfoViewModel : UserInfoViewModel = viewModel(factory =
-    //UserInfoViewModelFactory(LocalContext.current.applicationContext as Application))
     LaunchedEffect(Unit) {
-        userInfoViewModel.getAllMessages()
+        mainViewModel.getAllMessages()
     }
 
-    val allMessages by userInfoViewModel.allMessages.collectAsState()
+    val allMessages by mainViewModel.allMessages.collectAsState()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background,
     ) {
         Column(modifier = Modifier.fillMaxWidth(0.8f)) {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            LazyColumn(modifier = Modifier
+                .fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+                ) {
                 item {
                     allMessages.forEach { message ->
+                        val textColor = if (message.whoSaid == WhoSaid.Lex) { JessChatLex.contentColor }
+                        else { JessChatLex.messageColorUser }
                         Text(
                             text = message.message,
-                            color = JessChatLex.contentColor,
-                            style = MaterialTheme.typography.body2
+                            color = textColor,
+                            style = MaterialTheme.typography.body2,
+                            modifier = Modifier
+                                .padding(10.dp)
                         )
                     }
                 }

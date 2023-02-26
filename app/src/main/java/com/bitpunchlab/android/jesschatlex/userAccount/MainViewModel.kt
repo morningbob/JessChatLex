@@ -2,24 +2,31 @@ package com.bitpunchlab.android.jesschatlex.userAccount
 
 import android.app.Application
 import android.util.Log
+import androidx.compose.runtime.currentRecomposeScope
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.amplifyframework.auth.AuthChannelEventName
 import com.amplifyframework.core.InitializationStatus
 import com.amplifyframework.hub.HubChannel
 import com.amplifyframework.kotlin.core.Amplify
-import com.bitpunchlab.android.jesschatlex.database.ChatDao
+import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
+import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
 import com.bitpunchlab.android.jesschatlex.database.ChatDatabase
+import com.bitpunchlab.android.jesschatlex.helpers.WhoSaid
 import com.bitpunchlab.android.jesschatlex.models.Message
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import java.util.*
+import kotlin.collections.ArrayList
 
-class UserInfoViewModel(application: Application) : AndroidViewModel(application) {
-//class UserInfoViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+
     val _isLoggedIn = MutableStateFlow<Boolean>(false)
     val isLoggedIn : StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+
+    private val _userInput = MutableStateFlow<String>("")
+    val userInput : StateFlow<String> = _userInput.asStateFlow()
 
     var currentMessageList = ArrayList<Message>()
 
@@ -27,10 +34,20 @@ class UserInfoViewModel(application: Application) : AndroidViewModel(application
     val database = ChatDatabase.getInstance(application.applicationContext)
 
     val _allMessages = MutableStateFlow<List<Message>>(emptyList())
-    var allMessages : StateFlow<List<Message>> = _allMessages
+    var allMessages : StateFlow<List<Message>> = _allMessages.asStateFlow()
     //var allMessages = database.chatDAO.getAllMessage()
+    val _newMessage = MutableStateFlow<Message?>(null)
+    var newMessage : StateFlow<Message?> = _newMessage
+    private val _loadingAlpha = MutableStateFlow<Float>(0f)
+    val loadingAlpha: StateFlow<Float> = _loadingAlpha.asStateFlow()
 
+    // listen to login status
     init {
+        listenLoginStatus()
+        listenLexMessages()
+    }
+
+    private fun listenLoginStatus() {
         CoroutineScope(Dispatchers.Default).launch {
             Amplify.Hub.subscribe(HubChannel.AUTH).collect {
                 when (it.name) {
@@ -92,6 +109,40 @@ class UserInfoViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    private fun listenLexMessages() {
+        CoroutineScope(Dispatchers.IO).launch {
+            AmazonLexClient.messageState.collect() {
+                if (it != "") {
+                    val message = Message(
+                        UUID.randomUUID().toString(),
+                        WhoSaid.Lex,
+                        it
+                    )
+                    _newMessage.value = message
+                    currentMessageList.add(message)
+                    insertMessage(message)
+                    _loadingAlpha.value = 0f
+                }
+            }
+        }
+    }
+
+    fun sendMessage(messageString: String) {
+        _loadingAlpha.value = 1f
+        if (messageString != "") {
+            AmazonLexClient.sendMessage(messageString)
+            val message = Message(
+                UUID.randomUUID().toString(),
+                WhoSaid.User,
+                messageString
+            )
+            currentMessageList.add(message)
+            CoroutineScope(Dispatchers.IO).launch {
+                insertMessage(message)
+            }
+        }
+    }
+
     fun getAllMessages() {
         CoroutineScope(Dispatchers.IO).launch {
             database.chatDAO.getAllMessage().collect() { messages ->
@@ -100,26 +151,25 @@ class UserInfoViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun insertMessage(uiScope: CoroutineScope,  message: Message) {
+    private fun insertMessage(message: Message) {
         CoroutineScope(Dispatchers.IO).launch {
             //withContext(uiScope.coroutineContext) { // Use instead of the default context
             database.chatDAO.insertMessages(message)
         }
     }
 
-    private fun updateIsLoggedIn(newValue: Boolean) {
-        if (isLoggedIn.value != newValue) {
-            Log.i("user info", "update isLoggedIn $newValue")
-            _isLoggedIn.value = newValue
+    fun logoutUser() {
+        CoroutineScope(Dispatchers.IO).launch {
+            CognitoClient.logoutUser()
         }
     }
 }
 
-class UserInfoViewModelFactory(private val application: Application)
+class MainViewModelFactory(private val application: Application)
     : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(UserInfoViewModel::class.java)) {
-            return UserInfoViewModel(application) as T
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            return MainViewModel(application) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

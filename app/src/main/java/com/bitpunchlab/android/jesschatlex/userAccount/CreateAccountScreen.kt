@@ -32,33 +32,31 @@ import kotlinx.coroutines.*
 
 @Composable
 fun CreateAccountScreen(navController: NavHostController,
-    userInfoViewModel: UserInfoViewModel,
+    mainViewModel: MainViewModel,
     registerViewModel: RegisterViewModel = RegisterViewModel(SavedStateHandle())
 ) {
-    val nameState by registerViewModel.emailState.collectAsState()
+    val nameState by registerViewModel.nameState.collectAsState()
     val emailState by registerViewModel.emailState.collectAsState()
     val passwordState by registerViewModel.passwordState.collectAsState()
-    val confirmPassState by registerViewModel.passwordState.collectAsState()
-    val nameErrorState by registerViewModel.emailErrorState.collectAsState()
+    val confirmPassState by registerViewModel.confirmPassState.collectAsState()
+    val nameErrorState by registerViewModel.nameErrorState.collectAsState()
     val emailErrorState by registerViewModel.emailErrorState.collectAsState()
     val passwordErrorState by registerViewModel.passwordErrorState.collectAsState()
-    val confirmPassErrorState by registerViewModel.passwordErrorState.collectAsState()
+    val confirmPassErrorState by registerViewModel.confirmPassErrorState.collectAsState()
     val shouldNavigateMain by registerViewModel.shouldNavigateMain.collectAsState()
-    val shouldNavigateLogin by registerViewModel.shouldNavigateLogin.collectAsState()
+    //val shouldNavigateLogin by registerViewModel.shouldNavigateLogin.collectAsState()
     val loadingAlpha by registerViewModel.loadingAlpha.collectAsState()
+    val loginState by mainViewModel.isLoggedIn.collectAsState()
+
+    val readyRegister by registerViewModel.readyRegister.collectAsState()
 
     // navigate to main page if the user successfully created the account
     // or when user navigate to this page by back button
     // but he is already logged in
-    //val loginState by userInfoViewModel.isLoggedIn.collectAsState()
-    LaunchedEffect(key1 = shouldNavigateMain) {
-        if (shouldNavigateMain) {
+
+    LaunchedEffect(key1 = loginState) {
+        if (loginState) {
             navController.navigate(Main.route)
-        }
-    }
-    LaunchedEffect(key1 = shouldNavigateLogin) {
-        if (shouldNavigateLogin) {
-            navController.navigate(Login.route)
         }
     }
 
@@ -92,7 +90,8 @@ fun CreateAccountScreen(navController: NavHostController,
                     registerViewModel.registerUser()
                 }
                 var onLoginClicked = {
-                    registerViewModel.navigateLogin()
+                    //registerViewModel.navigateLogin()
+                    navController.navigate(Login.route)
                 }
 
                 HeaderImage(
@@ -120,9 +119,9 @@ fun CreateAccountScreen(navController: NavHostController,
                     GeneralButton(
                         title = "Send",
                         onClick = onSendClicked,
-                        shouldEnable = true,
+                        shouldEnable = readyRegister,
                         paddingTop = 30,
-                        paddingBottom = 20
+                        paddingBottom = 0
                     )
                     GeneralButton(
                         title = "Login",
