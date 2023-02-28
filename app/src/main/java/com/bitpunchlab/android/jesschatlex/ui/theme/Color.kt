@@ -10,6 +10,8 @@ object JessChatLex {
     val Teal200 = Color(0xFF03DAC5)
 
     val background = Color(0xFFabe2ed)
+    val greenBackground = Color(0xFF0c7829)
+    val disabledGreen = Color(0xFF208c3d)
     val titleColor = Color(0xFF041a87)
     val contentColor = Color(0xFF0b29bd)
     val errorColor = Color.Red

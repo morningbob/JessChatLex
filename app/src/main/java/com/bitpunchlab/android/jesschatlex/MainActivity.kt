@@ -19,6 +19,7 @@ import com.amplifyframework.core.InitializationStatus
 import com.amplifyframework.hub.HubChannel
 import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
+import com.bitpunchlab.android.jesschatlex.main.BottomNavItem
 import com.bitpunchlab.android.jesschatlex.main.MainScreen
 import com.bitpunchlab.android.jesschatlex.main.MessagesRecordScreen
 import com.bitpunchlab.android.jesschatlex.userAccount.*
@@ -33,13 +34,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //configureAmplify(applicationContext)
-        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        //Amplify.configure({ object : AmplifyConfiguration() {
-        //    aws_project_region: 'us-east-1'
-        //}
-        //}, applicationContext)
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         AmazonLexClient.initializeLex(applicationContext)
 
@@ -69,11 +65,6 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Composable
 fun JessNavigation(application: Application) {
     val navController = rememberNavController()
     val mainViewModel : MainViewModel = viewModel(factory = MainViewModelFactory(application))
@@ -88,43 +79,13 @@ fun JessNavigation(application: Application) {
         composable(Main.route) {
             MainScreen(navController, mainViewModel)
         }
-        composable(MessagesRecord.route) {
+        composable(Records.route) {
             MessagesRecordScreen(navController, mainViewModel)
         }
-    }
-}
-
-private suspend fun authListening() : Boolean =
-
-    suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
-        CoroutineScope(Dispatchers.IO).launch {
-        Amplify.Hub.subscribe(HubChannel.AUTH).collect {
-            when (it.name) {
-                InitializationStatus.SUCCEEDED.toString() ->
-                    Log.i("AuthQuickstart", "Auth successfully initialized")
-                InitializationStatus.FAILED.toString() ->
-                    Log.i("AuthQuickstart", "Auth failed to succeed")
-                else -> when (AuthChannelEventName.valueOf(it.name)) {
-                    AuthChannelEventName.SIGNED_IN -> {
-                        Log.i("AuthQuickstart", "Auth just became signed in.")
-                        //isSignedIn = true
-                        cancellableContinuation.resume(true) {}
-                    }
-                    AuthChannelEventName.SIGNED_OUT -> {
-                        Log.i("AuthQuickstart", "Auth just became signed out.")
-                        cancellableContinuation.resume(false) {}
-                    }
-                    AuthChannelEventName.SESSION_EXPIRED -> {
-                        Log.i("AuthQuickstart", "Auth session just expired.")
-                        cancellableContinuation.resume(false) {}
-                    }
-                    AuthChannelEventName.USER_DELETED -> {
-                        Log.i("AuthQuickstart", "User has been deleted.")
-                        cancellableContinuation.resume(false) {}
-                    }
-                }
-            }
+        composable(Logout.route) {
+            LogoutScreen(navController, mainViewModel)
         }
+
     }
 }
 
@@ -132,7 +93,7 @@ private suspend fun authListening() : Boolean =
 @Composable
 fun DefaultPreview() {
     JessChatLexTheme {
-        Greeting("Android")
+
     }
 }
 

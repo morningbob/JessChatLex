@@ -1,5 +1,6 @@
 package com.bitpunchlab.android.jesschatlex.main
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.util.Log
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -17,8 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthChannelEventName
@@ -27,7 +32,8 @@ import com.amplifyframework.core.InitializationStatus
 import com.amplifyframework.hub.HubChannel
 import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.Login
-import com.bitpunchlab.android.jesschatlex.MessagesRecord
+import com.bitpunchlab.android.jesschatlex.R
+import com.bitpunchlab.android.jesschatlex.Records
 import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
 import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
 import com.bitpunchlab.android.jesschatlex.base.CustomCircularProgressBar
@@ -42,6 +48,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainScreen(navController: NavHostController,
     mainViewModel: MainViewModel,) {
@@ -62,7 +69,7 @@ fun MainScreen(navController: NavHostController,
 
     LaunchedEffect(key1 = shouldNavigateRecords) {
         if (shouldNavigateRecords) {
-            navController.navigate(MessagesRecord.route)
+            navController.navigate(Records.route)
         }
     }
 
@@ -71,83 +78,122 @@ fun MainScreen(navController: NavHostController,
             .fillMaxSize(),
             //.verticalScroll(rememberScrollState()),
         color = MaterialTheme.colors.background,
-
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-                //.verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Scaffold(
+            bottomBar = { BottomNavigationBar(navController
+                //title = { Text("Jess Chat") } ,
+            ) }
         ) {
 
-
-            LazyColumn(
+            Column(
                 modifier = Modifier
-                    .fillMaxHeight(0.65f)
-                    .padding(30.dp),
-                horizontalAlignment = Alignment.Start
-                //verticalArrangement = Arrangement.Center,
-                //horizontalAlignment = Alignment.Start
+                    .fillMaxSize(),
+                //.verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                item {
-
-                    mainViewModel.currentMessageList.forEach { message ->
-                        val textColor = if (message.whoSaid == WhoSaid.Lex) { JessChatLex.contentColor }
-                            else { JessChatLex.messageColorUser }
-                        Text(
-                            text = message.message,
-                            modifier = Modifier.padding(10.dp),
-                            color = textColor
-                        )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxHeight(0.75f)
+                        .fillMaxWidth()
+                        .padding(30.dp),
+                    horizontalAlignment = Alignment.Start
+                    //verticalArrangement = Arrangement.Center,
+                    //horizontalAlignment = Alignment.Start
+                ) {
+                    item {
+                        mainViewModel.currentMessageList.forEach { message ->
+                            val textColor = if (message.whoSaid == WhoSaid.Lex) {
+                                JessChatLex.contentColor
+                            } else {
+                                JessChatLex.messageColorUser
+                            }
+                            Text(
+                                text = message.message,
+                                modifier = Modifier.padding(8.dp),
+                                color = textColor,
+                                fontSize = 20.sp
+                            )
+                        }
                     }
                 }
+
+                OutlinedTextField(
+                    value = input,
+                    onValueChange = { newInput : String ->
+                        input = newInput
+                    },
+                    trailingIcon = {
+                        if (input != "") {
+                            sendIcon {
+                                mainViewModel.sendMessage(input)
+                                input = ""
+                            }
+                        }
+                    },
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = JessChatLex.buttonTextColor,
+                        unfocusedBorderColor = MaterialTheme.colors.primary,
+                        placeholderColor = JessChatLex.buttonTextColor),
+                    shape = RoundedCornerShape(12.dp),
+                    placeholder = { Text(text = "Type your message") }
+                )
+/*
+                GeneralButton(
+                    title = "Send",
+                    onClick = {
+                        mainViewModel.sendMessage(input)
+                        input = ""
+                    },
+                    shouldEnable = true,
+                    paddingTop = 5,
+                    paddingBottom = 0
+                )
+
+                GeneralButton(
+                    title = "Chat Record",
+                    onClick = {
+                        shouldNavigateRecords = true
+                    },
+                    shouldEnable = true,
+                    paddingTop = 5,
+                    paddingBottom = 0
+                )
+
+                GeneralButton(
+                    title = "Logout",
+                    onClick = { mainViewModel.logoutUser() },
+                    shouldEnable = true,
+                    paddingTop = 10,
+                    paddingBottom = 20
+                )
+
+ */
             }
+            // progress bar
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(loadingAlpha),
 
-            OutlinedTextField(
-                value = input, onValueChange = { newInput ->
-                    input = newInput
-                }
-            )
-
-            GeneralButton(
-                title = "Send",
-                onClick = {
-                    mainViewModel.sendMessage(input)
-                    input = ""
-                },
-                shouldEnable = true,
-                paddingTop = 5,
-                paddingBottom = 0
-            )
-
-            GeneralButton(
-                title = "Chat Record",
-                onClick = {
-                    shouldNavigateRecords = true
-                },
-                shouldEnable = true,
-                paddingTop = 5,
-                paddingBottom = 0
-            )
-
-            GeneralButton(
-                title = "Logout",
-                onClick = { mainViewModel.logoutUser() },
-                shouldEnable = true,
-                paddingTop = 10,
-                paddingBottom = 20
-            )
+                ) {
+                CustomCircularProgressBar()
+            }
         }
-        // progress bar
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(loadingAlpha),
+    }
+}
 
-            ) {
-            CustomCircularProgressBar()
-        }
+@Composable
+fun sendIcon(onClick: () -> Unit) {
+    IconButton(
+        onClick = { onClick.invoke() }
+    ) {
+        Icon(
+            painter = painterResource(id = R.mipmap.send),
+            contentDescription = "Send Message",
+            Modifier.size(30.dp),
+            tint = JessChatLex.messageColorUser
+        )
     }
 }
 

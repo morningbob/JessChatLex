@@ -3,6 +3,7 @@ package com.bitpunchlab.android.jesschatlex.base
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,6 +17,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bitpunchlab.android.jesschatlex.R
 import com.bitpunchlab.android.jesschatlex.helpers.WhoSaid
@@ -37,13 +39,15 @@ fun UserInputTextField(title: String, content: String, hide: Boolean,
 
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = paddingTop.dp, bottom = paddingBottom.dp, start = 30.dp, end = 30.dp),
+            .padding(top = paddingTop.dp, bottom = paddingBottom.dp, start = 50.dp, end = 50.dp),
+
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         colors = TextFieldDefaults.outlinedTextFieldColors(
-        focusedBorderColor = JessChatLex.textFieldBorderColor,
-        unfocusedBorderColor = JessChatLex.textFieldBorderColor,
-        focusedLabelColor = MaterialTheme.colors.secondary,
-        cursorColor = MaterialTheme.colors.primaryVariant
+            focusedBorderColor = JessChatLex.textFieldBorderColor,
+            unfocusedBorderColor = JessChatLex.textFieldBorderColor,
+            focusedLabelColor = MaterialTheme.colors.secondary,
+            cursorColor = MaterialTheme.colors.primaryVariant,
+            backgroundColor = Color.White
     ),
     )
 }
@@ -56,7 +60,9 @@ fun TitleText(title: String, paddingTop: Int, paddingBottom: Int) {
             .fillMaxWidth()
             .padding(top = paddingTop.dp, bottom = paddingBottom.dp),
         textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.h1
+        style = MaterialTheme.typography.h1,
+        fontSize = 40.sp,
+        color = Color.White
     )
 }
 
@@ -76,7 +82,7 @@ fun ErrorText(error: String) {
         text = error,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 0.dp, bottom = 0.dp, start = 30.dp, end = 30.dp),
+            .padding(top = 0.dp, bottom = 0.dp, start = 50.dp, end = 50.dp),
         textAlign = TextAlign.Start,
         style = MaterialTheme.typography.body2
     )
@@ -113,6 +119,32 @@ fun GeneralButton(title: String, onClick: () -> Unit, shouldEnable: Boolean, pad
 }
 
 @Composable
+fun AppButton(title: String, onClick: () -> Unit, shouldEnable: Boolean, buttonColor: Color, modifier: Modifier) {
+    Button(
+        onClick = { onClick.invoke() },
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = buttonColor,
+            disabledContentColor = Color.Gray,
+            disabledBackgroundColor = Color.Gray
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp, bottom = 10.dp, start = 70.dp, end = 70.dp)
+            .background(JessChatLex.background)
+            .then(modifier),
+
+        shape = RoundedCornerShape(15.dp),
+        enabled = shouldEnable)
+    {
+        Text(
+            text = title,
+            fontSize = 22.sp,
+            color = Color.White
+        )
+    }
+}
+
+@Composable
 fun HeaderImage(resource: Int, description: String, paddingTop: Int, paddingBottom: Int) {
     Image(
         painter = painterResource(id = resource),
@@ -125,9 +157,14 @@ fun HeaderImage(resource: Int, description: String, paddingTop: Int, paddingBott
 }
 
 @Composable
-fun CustomDialog(title: String, message: String, setStartDialog: (Boolean) -> Unit,
-                 okOnClick: () -> Unit, cancelOnClick: () -> Unit) {
-    Dialog(onDismissRequest = { }) {
+fun CustomDialog(title: String, message: String, field: String? = null, onDismiss: () -> Unit,
+                 okOnClick: ((String?) -> Unit)? = null, cancelOnClick: ((String?) -> Unit)? = null) {
+
+    var fieldValue by remember {
+        mutableStateOf("")
+    }
+
+    Dialog(onDismissRequest = { onDismiss.invoke() }) {
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = JessChatLex.dialogBackgroundColor
@@ -143,49 +180,92 @@ fun CustomDialog(title: String, message: String, setStartDialog: (Boolean) -> Un
                     modifier = Modifier
                         .fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.h3)
+                    style = MaterialTheme.typography.h3
+                )
 
                 Text(
                     text = message,
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(top = 30.dp),
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.body1,
                     color = JessChatLex.dialogMessageColor
                 )
 
-                GeneralButton(
-                    title = "OK",
-                    onClick = okOnClick,
-                    shouldEnable = true,
-                    paddingTop = 0,
-                    paddingBottom = 0
-                )
+                if (field != null) {
+                    OutlinedTextField(
+                        value = fieldValue,
+                        onValueChange = { newValue ->
+                            fieldValue = newValue
+                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = JessChatLex.buttonTextColor,
+                            unfocusedBorderColor = MaterialTheme.colors.primary,
+                            focusedLabelColor = JessChatLex.buttonTextColor,
+                            unfocusedLabelColor = JessChatLex.buttonTextColor
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        label = { Text(text = field) },
+                        modifier = Modifier.padding(top = 30.dp)
+                        // placeholder = { Text(text = "Type your message") }
+                    )
+                }
 
-                GeneralButton(
-                    title = "Cancel",
-                    onClick = { setStartDialog(false) },
-                    shouldEnable = true,
-                    paddingTop = 0,
-                    paddingBottom = 0
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 30.dp, start = 50.dp, end = 50.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    if (okOnClick != null) {
+                        DialogButton(
+                            title = "OK",
+                            onClick = okOnClick,
+                            modifier = Modifier,
+                            parameter = fieldValue
+                        )
+                    }
 
+                    if (cancelOnClick != null) {
+                        DialogButton(
+                            title = "Cancel",
+                            onClick = cancelOnClick,
+                            modifier = Modifier
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun CustomCircularProgressBar() {
-    CircularProgressIndicator(
-        modifier = Modifier.size(100.dp),
-        color = JessChatLex.buttonTextColor,
-        strokeWidth = 10.dp)
+fun DialogButton(title: String, parameter: String? = null, onClick: (String?) -> Unit, modifier: Modifier) {
 
+    Button(
+        onClick = { onClick.invoke(parameter) },
+        //modifier = Modifier
+        //    .fillMaxWidth(0.5f),
+        //.background(JessChatLex.buttonTextColor),
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = JessChatLex.disabledGreen,
+        ),
+        modifier = modifier
+    ) {
+        Text(
+            text = title,
+            fontSize = 17.sp,
+            color = Color.White
+        )
+    }
 }
 
-
 @Composable
-fun MessageText(whoSaid: WhoSaid, message: String) {
+fun CustomCircularProgressBar() {
+    CircularProgressIndicator(
+        modifier = Modifier.size(80.dp),
+        color = JessChatLex.buttonTextColor,
+        strokeWidth = 10.dp)
 
 }

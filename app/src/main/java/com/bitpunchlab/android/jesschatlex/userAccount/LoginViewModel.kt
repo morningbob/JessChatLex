@@ -1,5 +1,6 @@
 package com.bitpunchlab.android.jesschatlex.userAccount
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.saveable
 import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
@@ -25,20 +26,28 @@ class LoginViewModel : ViewModel() {
     private val _readyLogin = MutableStateFlow<Boolean>(false)
     val readyLogin : StateFlow<Boolean> = _readyLogin.asStateFlow()
 
-    private val _shouldNavigateMain = MutableStateFlow<Boolean>(false)
-    val shouldNavigateMain : StateFlow<Boolean> = _shouldNavigateMain.asStateFlow()
-
-    private val _shouldNavigateSignUp = MutableStateFlow<Boolean>(false)
-    val shouldNavigateSignUp: StateFlow<Boolean> = _shouldNavigateSignUp.asStateFlow()
-
     private val _loadingAlpha = MutableStateFlow<Float>(0f)
     val loadingAlpha: StateFlow<Float> = _loadingAlpha.asStateFlow()
+
+    private val _showFailureDialog = MutableStateFlow<Boolean>(false)
+    val showFailureDialog: StateFlow<Boolean> = _showFailureDialog.asStateFlow()
+
+    private val _showForgotDialog = MutableStateFlow<Boolean>(false)
+    val showForgotDialog: StateFlow<Boolean> = _showForgotDialog.asStateFlow()
+
+    private val _forgotPassword = MutableStateFlow<Boolean>(false)
+    val forgotPassword: StateFlow<Boolean> = _forgotPassword.asStateFlow()
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
             combine(emailErrorState, passwordErrorState) { email, password ->
                 _readyLogin.value = email == "" && password == ""
             }.collect()
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            forgotPassword.collect() {
+                resetPassword()
+            }
         }
     }
 
@@ -70,14 +79,49 @@ class LoginViewModel : ViewModel() {
         _loadingAlpha.value = 1f
         CoroutineScope(Dispatchers.IO).launch {
             if (CognitoClient.loginUser(email = emailState.value, password = passwordState.value)) {
-                _loadingAlpha.value = 0f
                 // navigate to main
-                //_shouldNavigateMain.value = true
+                // setting the alpha here and below, duplicately, because of timing issue
+                // want to set to 0f only when login result came back
+                _loadingAlpha.value = 0f
             } else {
                 // display alert
+                Log.i("login user", "failure")
+                _showFailureDialog.value = true
+                _loadingAlpha.value = 0f
+            }
+
+        }
+    }
+
+    fun recoverUser(email: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            if (CognitoClient.recoverUser(email)) {
+                Log.i("password reset", "success")
+            } else {
+                Log.i("password reset", "error")
             }
         }
     }
+
+    private fun resetPassword() {
+        // show dialog to get email
+        // check email exist in Cognito
+        //recoverUser()
+    }
+
+    fun updateShowDialog(newValue: Boolean) {
+        _showFailureDialog.value = newValue
+    }
+
+    fun updateForgotPassword(newValue: Boolean) {
+        _forgotPassword.value = newValue
+    }
+
+    fun updateShowForgotDialog(newValue: Boolean) {
+        _showForgotDialog.value = newValue
+    }
+
+
 }
 /*
 

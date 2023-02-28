@@ -25,9 +25,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _isLoggedIn = MutableStateFlow<Boolean>(false)
     val isLoggedIn : StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
-    private val _userInput = MutableStateFlow<String>("")
-    val userInput : StateFlow<String> = _userInput.asStateFlow()
-
     var currentMessageList = ArrayList<Message>()
 
     @OptIn(InternalCoroutinesApi::class)
@@ -36,8 +33,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _allMessages = MutableStateFlow<List<Message>>(emptyList())
     var allMessages : StateFlow<List<Message>> = _allMessages.asStateFlow()
     //var allMessages = database.chatDAO.getAllMessage()
-    val _newMessage = MutableStateFlow<Message?>(null)
-    var newMessage : StateFlow<Message?> = _newMessage
+    //val _newMessage = MutableStateFlow<Message?>(null)
+    //var newMessage : StateFlow<Message?> = _newMessage
     private val _loadingAlpha = MutableStateFlow<Float>(0f)
     val loadingAlpha: StateFlow<Float> = _loadingAlpha.asStateFlow()
 
@@ -55,7 +52,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     // the app should automatically navigate to main page
                     InitializationStatus.SUCCEEDED.toString() -> {
                         Log.i("AuthQuickstart", "Auth successfully initialized")
-                        //val authSession = Amplify.Auth.fetchAuthSession()
                         val authSessionDeferred = CoroutineScope(Dispatchers.IO).async {
                             Amplify.Auth.fetchAuthSession()
                         }
@@ -63,45 +59,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         if (authSession.isSignedIn) {
                             Log.i("auth listener", "signed in")
                             _isLoggedIn.value = true
-                            //updateIsLoggedIn(true)
                             Log.i("isLoggedIn", "is passed to variable")
-                            //cancellableContinuation.resume(true) {}
-                            //emit(true)
                         } else {
                             Log.i("auth listener", "not signed in")
-                            //cancellableContinuation.resume(false) {}
                             _isLoggedIn.value = false
-                            //updateIsLoggedIn(false)
-                            //emit(false)
                         }
                     }
                     InitializationStatus.FAILED.toString() ->
-                        Log.i("AuthQuickstart", "Auth failed to succeed")
+                        Log.i("auth listener", "Auth failed to succeed")
                     else -> when (AuthChannelEventName.valueOf(it.name)) {
                         AuthChannelEventName.SIGNED_IN -> {
-                            Log.i("AuthQuickstart", "Auth just became signed in.")
-                            //isSignedIn = true
-                            //cancellableContinuation.resume(true) {}
+                            Log.i("auth listener", "Auth just became signed in.")
                             _isLoggedIn.value = true
-                            //updateIsLoggedIn(true)
                         }
                         AuthChannelEventName.SIGNED_OUT -> {
-                            Log.i("AuthQuickstart", "Auth just became signed out.")
-                            //cancellableContinuation.resume(false) {}
+                            Log.i("auth listener", "Auth just became signed out.")
                             _isLoggedIn.value = false
-                            //updateIsLoggedIn(false)
                         }
                         AuthChannelEventName.SESSION_EXPIRED -> {
-                            Log.i("AuthQuickstart", "Auth session just expired.")
-                            //cancellableContinuation.resume(false) {}
+                            Log.i("auth listener", "Auth session just expired.")
                             _isLoggedIn.value = false
-                            //updateIsLoggedIn(false)
                         }
                         AuthChannelEventName.USER_DELETED -> {
-                            Log.i("AuthQuickstart", "User has been deleted.")
-                            //cancellableContinuation.resume(false) {}
+                            Log.i("auth listener", "User has been deleted.")
                             _isLoggedIn.value = false
-                            //updateIsLoggedIn(false)
                         }
                     }
                 }
@@ -118,7 +99,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         WhoSaid.Lex,
                         it
                     )
-                    _newMessage.value = message
+                    //_newMessage.value = message
                     currentMessageList.add(message)
                     insertMessage(message)
                     _loadingAlpha.value = 0f
@@ -128,8 +109,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun sendMessage(messageString: String) {
-        _loadingAlpha.value = 1f
         if (messageString != "") {
+            _loadingAlpha.value = 1f
             AmazonLexClient.sendMessage(messageString)
             val message = Message(
                 UUID.randomUUID().toString(),
