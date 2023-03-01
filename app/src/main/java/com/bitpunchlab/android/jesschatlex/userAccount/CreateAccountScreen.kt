@@ -156,7 +156,7 @@ fun CreateAccountScreen(navController: NavHostController,
         if (showSuccessDialog) {
             CustomDialog(
                 title = "Registration Success",
-                message = "You are successfully registered.  Please login the app.",
+                message = "You are successfully registered.  We sent a verification code to your email.  You need to confirm your email before logging in.",
                 onDismiss = { registerViewModel.updateShowSuccessDialog(false) },
                 okOnClick = { registerViewModel.updateShowSuccessDialog(false) }
             )

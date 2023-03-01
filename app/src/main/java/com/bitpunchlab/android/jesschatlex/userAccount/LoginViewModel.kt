@@ -35,19 +35,18 @@ class LoginViewModel : ViewModel() {
     private val _showForgotDialog = MutableStateFlow<Boolean>(false)
     val showForgotDialog: StateFlow<Boolean> = _showForgotDialog.asStateFlow()
 
-    private val _forgotPassword = MutableStateFlow<Boolean>(false)
-    val forgotPassword: StateFlow<Boolean> = _forgotPassword.asStateFlow()
+    private val _showConfirmEmailDialog = MutableStateFlow<Boolean>(false)
+    val showConfirmEmailDialog: StateFlow<Boolean> = _showConfirmEmailDialog.asStateFlow()
+
+    private val _showConfirmEmailStatus = MutableStateFlow<Int>(0)
+    val showConfirmEmailStatus: StateFlow<Int> = _showConfirmEmailStatus.asStateFlow()
+
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
             combine(emailErrorState, passwordErrorState) { email, password ->
                 _readyLogin.value = email == "" && password == ""
             }.collect()
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            forgotPassword.collect() {
-                resetPassword()
-            }
         }
     }
 
@@ -103,6 +102,25 @@ class LoginViewModel : ViewModel() {
         }
     }
 
+    // 0 means not ready, 1 means success, 2 means failure
+    fun verifyConfirmCode(email: String, code: String) {
+        //_showConfirmEmailDialog.value = true
+        Log.i("verify confirm code", "received: $code")
+        _loadingAlpha.value = 1f
+        CoroutineScope(Dispatchers.IO).launch {
+            if (CognitoClient.confirmVerificationCode(email, code)) {
+                Log.i("verify code", "success")
+                // show success alert
+                _loadingAlpha.value = 0f
+                _showConfirmEmailStatus.value = 1
+            } else {
+                Log.i("verify code", "failed")
+                _loadingAlpha.value = 0f
+                _showConfirmEmailStatus.value = 2
+            }
+        }
+    }
+
     private fun resetPassword() {
         // show dialog to get email
         // check email exist in Cognito
@@ -113,15 +131,17 @@ class LoginViewModel : ViewModel() {
         _showFailureDialog.value = newValue
     }
 
-    fun updateForgotPassword(newValue: Boolean) {
-        _forgotPassword.value = newValue
-    }
-
     fun updateShowForgotDialog(newValue: Boolean) {
         _showForgotDialog.value = newValue
     }
 
+    fun updateShowConfirmEmailDialog(newValue: Boolean) {
+        _showConfirmEmailDialog.value = newValue
+    }
 
+    fun updateConfirmEmailStatus(newValue: Int) {
+        _showConfirmEmailStatus.value = newValue
+    }
 }
 /*
 

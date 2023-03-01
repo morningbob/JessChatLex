@@ -2,6 +2,7 @@ package com.bitpunchlab.android.jesschatlex.awsClient
 
 import android.util.Log
 import aws.smithy.kotlin.runtime.ServiceException
+import com.amazonaws.mobile.client.AWSMobileClient
 import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentity
 import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentityClient
 import com.amazonaws.services.cognitoidentity.model.CognitoIdentityProvider
@@ -73,6 +74,20 @@ object CognitoClient {
             }
         }
 
+
+/*
+    suspend fun getUserName(email: String) : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
+                try {
+                    val result = Amplify.Auth.fetchUserAttributes()
+                } catch (exception: Exception) {
+
+                }
+            }
+
+    }
+*/
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun recoverUser(email: String) : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
@@ -83,13 +98,25 @@ object CognitoClient {
                     cancellableContinuation.resume(true) {}
                 } catch (exception: Exception) {
                     Log.i("password reset", "error: $exception")
+                    //sendVerificationCode(email)
                     cancellableContinuation.resume(false) {}
                 }
             }
         }
 
-    suspend fun sendVerificationLink(email: String) : Boolean =
-        suspendCancellableCoroutine<Boolean> {  
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun confirmVerificationCode(email: String, code: String) : Boolean =
+        suspendCancellableCoroutine<Boolean> {  cancellableContinuation ->
+            CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
+                try {
+                    val result = Amplify.Auth.confirmSignUp(email, code)
+                    Log.i("send verification code", "result $result")
+                    cancellableContinuation.resume(true) {}
+                } catch (exception: Exception) {
+                    Log.i("send verification code", "failed $exception")
+                    cancellableContinuation.resume(false) {}
+                }
+            }
     }
 
     suspend fun logoutUser() {

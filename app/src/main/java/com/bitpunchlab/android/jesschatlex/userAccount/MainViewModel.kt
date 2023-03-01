@@ -42,6 +42,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     init {
         listenLoginStatus()
         listenLexMessages()
+        // we watch when isLogged in is true, we get the name
+        CoroutineScope(Dispatchers.IO).launch {
+            isLoggedIn.collect() { it ->
+                if (it) {
+                    //retrieveUserName()
+                }
+            }
+        }
     }
 
     private fun listenLoginStatus() {
@@ -106,6 +114,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
+    }
+    // if the name is not available from share preference
+    // this function will send a request to get the name
+    fun retrieveUserName() {
+        AmazonLexClient.getName()
     }
 
     fun sendMessage(messageString: String) {

@@ -111,6 +111,12 @@ object AmazonLexClient {
 
     }
 
+    fun getName() {
+        val userAttributes = AWSMobileClient.getInstance().userAttributes
+        Log.i("get user name", "user attributes $userAttributes")
+
+    }
+
     fun sendMessage(message: String) {
         lexClient!!.textInForTextOut(message, null)
     }

@@ -157,10 +157,14 @@ fun HeaderImage(resource: Int, description: String, paddingTop: Int, paddingBott
 }
 
 @Composable
-fun CustomDialog(title: String, message: String, field: String? = null, onDismiss: () -> Unit,
-                 okOnClick: ((String?) -> Unit)? = null, cancelOnClick: ((String?) -> Unit)? = null) {
+fun CustomDialog(title: String, message: String, fieldOne: String? = null, fieldTwo: String? = null, onDismiss: () -> Unit,
+                 okOnClick: ((List<String>?) -> Unit)? = null, cancelOnClick: ((List<String>?) -> Unit)? = null) {
 
-    var fieldValue by remember {
+    var fieldOneValue by remember {
+        mutableStateOf("")
+    }
+
+    var fieldTwoValue by remember {
         mutableStateOf("")
     }
 
@@ -193,11 +197,11 @@ fun CustomDialog(title: String, message: String, field: String? = null, onDismis
                     color = JessChatLex.dialogMessageColor
                 )
 
-                if (field != null) {
+                if (fieldOne != null) {
                     OutlinedTextField(
-                        value = fieldValue,
+                        value = fieldOneValue,
                         onValueChange = { newValue ->
-                            fieldValue = newValue
+                            fieldOneValue = newValue
                         },
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = JessChatLex.buttonTextColor,
@@ -206,7 +210,26 @@ fun CustomDialog(title: String, message: String, field: String? = null, onDismis
                             unfocusedLabelColor = JessChatLex.buttonTextColor
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        label = { Text(text = field) },
+                        label = { Text(text = fieldOne) },
+                        modifier = Modifier.padding(top = 30.dp)
+                        // placeholder = { Text(text = "Type your message") }
+                    )
+                }
+
+                if (fieldTwo != null) {
+                    OutlinedTextField(
+                        value = fieldTwoValue,
+                        onValueChange = { newValue ->
+                            fieldTwoValue = newValue
+                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = JessChatLex.buttonTextColor,
+                            unfocusedBorderColor = MaterialTheme.colors.primary,
+                            focusedLabelColor = JessChatLex.buttonTextColor,
+                            unfocusedLabelColor = JessChatLex.buttonTextColor
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        label = { Text(text = fieldTwo) },
                         modifier = Modifier.padding(top = 30.dp)
                         // placeholder = { Text(text = "Type your message") }
                     )
@@ -223,7 +246,7 @@ fun CustomDialog(title: String, message: String, field: String? = null, onDismis
                             title = "OK",
                             onClick = okOnClick,
                             modifier = Modifier,
-                            parameter = fieldValue
+                            parameter = listOf(fieldOneValue, fieldTwoValue)
                         )
                     }
 
@@ -241,7 +264,7 @@ fun CustomDialog(title: String, message: String, field: String? = null, onDismis
 }
 
 @Composable
-fun DialogButton(title: String, parameter: String? = null, onClick: (String?) -> Unit, modifier: Modifier) {
+fun DialogButton(title: String, parameter: List<String>? = null, onClick: (List<String>?) -> Unit, modifier: Modifier) {
 
     Button(
         onClick = { onClick.invoke(parameter) },

@@ -54,6 +54,8 @@ fun LoginScreen(navController: NavHostController,
     val loginState by mainViewModel.isLoggedIn.collectAsState()
     val showFailureDialog by loginViewModel.showFailureDialog.collectAsState()
     val showForgotDialog by loginViewModel.showForgotDialog.collectAsState()
+    val showConfirmEmailDialog by loginViewModel.showConfirmEmailDialog.collectAsState()
+    val showConfirmEmailStatus by loginViewModel.showConfirmEmailStatus.collectAsState()
 
     val readyLogin by loginViewModel.readyLogin.collectAsState()
     // LaunchedEffect is used to run code that won't trigger recomposition of the view
@@ -71,14 +73,8 @@ fun LoginScreen(navController: NavHostController,
             loginViewModel.loginUser()
         }
         val onSignUpClicked = {
-            //LaunchedEffect(Unit) {
-                //loginViewModel.navigateSignUp()
-            //}
             navController.navigate(CreateAccount.route)
         }
-        //val onForgotPassClicked = {
-        //    loginViewModel.updateForgotPassword(true)
-        //}
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -129,14 +125,26 @@ fun LoginScreen(navController: NavHostController,
                 fontSize = 18.sp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 15.dp, bottom = 30.dp)
+                    .padding(top = 15.dp, bottom = 8.dp)
                     .clickable(enabled = true) {
                         loginViewModel.updateShowForgotDialog(true)
                     },
                 textAlign = TextAlign.Center,
                 color = JessChatLex.buttonTextColor,
-
             )
+            Text(
+                text = "Confirm Email",
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 15.dp, bottom = 30.dp)
+                    .clickable(enabled = true) {
+                        loginViewModel.updateShowConfirmEmailDialog(true)
+                    },
+                textAlign = TextAlign.Center,
+                color = JessChatLex.buttonTextColor,
+            )
+
         }
         if (showFailureDialog) {
             CustomDialog(
@@ -150,16 +158,54 @@ fun LoginScreen(navController: NavHostController,
             CustomDialog(
                 title = "Password Reset",
                 message = "Please enter the email you use to register the app.  We'll send a password reset link to you.",
-                field = "Email",
+                fieldOne = "Email",
                 onDismiss = { loginViewModel.updateShowForgotDialog(false) },
-                okOnClick = { email ->
-                    if (!email.isNullOrEmpty()) {
-                        Log.i("login screen", "email $email")
-                        loginViewModel.recoverUser(email)
+                okOnClick = { inputList ->
+                    if (!inputList?.get(0).isNullOrEmpty()) {
+                        Log.i("login screen", "email ${inputList!!.get(0)}")
+                        loginViewModel.recoverUser(inputList!!.get(0))
                     }
                     loginViewModel.updateShowForgotDialog(false)
                 },
                 cancelOnClick = { loginViewModel.updateShowForgotDialog(false) })
+        }
+
+        if (showConfirmEmailDialog) {
+            CustomDialog(
+                title = "Verification Code",
+                message = "Please enter the verification code in the email.",
+                fieldOne = "Email",
+                fieldTwo = "Confirmation Code",
+                onDismiss = { loginViewModel.updateShowConfirmEmailDialog(false) },
+                cancelOnClick = { loginViewModel.updateShowConfirmEmailDialog(false) },
+                okOnClick = { inputList ->
+                    if (!inputList?.get(0).isNullOrEmpty() && !inputList?.get(1).isNullOrEmpty()) {
+                        Log.i("login screen", "email: ${inputList?.get(0)}")
+                        Log.i("login screen", "code: ${inputList?.get(1)}")
+                        loginViewModel.verifyConfirmCode(inputList!!.get(0), inputList!!.get(1))
+                    }
+                    loginViewModel.updateShowConfirmEmailDialog(false)
+                }
+            )
+        }
+
+        // verification success
+        if (showConfirmEmailStatus == 1) {
+            CustomDialog(
+                title = "Email Verification Success",
+                message = "Your email and your account is verified.  Please login with the email.",
+                onDismiss = { loginViewModel.updateConfirmEmailStatus(0) },
+                //cancelOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
+                okOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
+            )
+        } else if (showConfirmEmailStatus == 2) {
+            CustomDialog(
+                title = "Email Verification Failure",
+                message = "We couldn't verify your email.  Please make sure you have wifi, and the confirmation code is correct.",
+                onDismiss = { loginViewModel.updateConfirmEmailStatus(0) },
+                //cancelOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
+                okOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
+            )
         }
 
         Box(
@@ -172,4 +218,5 @@ fun LoginScreen(navController: NavHostController,
             CustomCircularProgressBar()
         }
     }
+
 }

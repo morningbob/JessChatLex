@@ -25,6 +25,11 @@ object Records : Destinations {
     override val icon: Int = R.mipmap.records
 }
 
+object Profile : Destinations {
+    override val route: String = "Profile"
+    override val icon: Int = R.mipmap.user
+}
+
 object Logout : Destinations {
     override val route: String = "Logout"
     override val icon : Int = R.mipmap.logout

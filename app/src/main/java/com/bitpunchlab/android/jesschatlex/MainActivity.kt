@@ -82,6 +82,9 @@ fun JessNavigation(application: Application) {
         composable(Records.route) {
             MessagesRecordScreen(navController, mainViewModel)
         }
+        composable(Profile.route) {
+            ProfileScreen(navController, mainViewModel)
+        }
         composable(Logout.route) {
             LogoutScreen(navController, mainViewModel)
         }

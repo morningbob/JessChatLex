@@ -11,10 +11,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.bitpunchlab.android.jesschatlex.Destinations
-import com.bitpunchlab.android.jesschatlex.Logout
-import com.bitpunchlab.android.jesschatlex.Main
-import com.bitpunchlab.android.jesschatlex.Records
+import com.bitpunchlab.android.jesschatlex.*
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 
 @Composable
@@ -23,6 +20,7 @@ fun BottomNavigationBar(navController: NavHostController) {
     val bottomItems = listOf<Destinations>(
         Main,
         Records,
+        Profile,
         Logout
     )
 
@@ -36,7 +34,6 @@ fun BottomNavigationBar(navController: NavHostController) {
         bottomItems.forEach { item ->
 
             BottomNavigationItem(
-                //label = { Text(text = item.route) },
                 icon = {
                     Icon(
                         painterResource(id = item.icon),
