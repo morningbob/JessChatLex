@@ -32,6 +32,7 @@ import com.bitpunchlab.android.jesschatlex.Main
 import com.bitpunchlab.android.jesschatlex.R
 import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
 import com.bitpunchlab.android.jesschatlex.base.*
+import com.bitpunchlab.android.jesschatlex.helpers.InputValidation
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +57,7 @@ fun LoginScreen(navController: NavHostController,
     val showForgotDialog by loginViewModel.showForgotDialog.collectAsState()
     val showConfirmEmailDialog by loginViewModel.showConfirmEmailDialog.collectAsState()
     val showConfirmEmailStatus by loginViewModel.showConfirmEmailStatus.collectAsState()
+    val showRequestCodeDialog by loginViewModel.showRequestCodeDialog.collectAsState()
 
     val readyLogin by loginViewModel.readyLogin.collectAsState()
     // LaunchedEffect is used to run code that won't trigger recomposition of the view
@@ -78,7 +80,7 @@ fun LoginScreen(navController: NavHostController,
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            //verticalArrangement = Arrangement.Center,
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
             Column(
@@ -87,7 +89,7 @@ fun LoginScreen(navController: NavHostController,
                     //.padding(top = 0.dp, bottom = 30.dp, end = 80.dp)
                     .background(JessChatLex.buttonTextColor),
 
-            ) {
+                ) {
                 TitleText(title = "Login", paddingTop = 100, paddingBottom = 100)
             }
             /*
@@ -99,10 +101,20 @@ fun LoginScreen(navController: NavHostController,
              */
             Column(horizontalAlignment = Alignment.Start) {
                 //TextField(value = loginViewModel.email, onValueChange = { loginViewModel.updateEmail(it) })
-                UserInputTextField(title = "Email", content = emailState, hide = false, paddingTop = 30, paddingBottom = 0
+                UserInputTextField(
+                    title = "Email",
+                    content = emailState,
+                    hide = false,
+                    paddingTop = 30,
+                    paddingBottom = 0
                 ) { loginViewModel.updateEmail(it) }
                 ErrorText(error = emailErrorState)
-                UserInputTextField(title = "Password", content = passwordState, hide = true, paddingTop = 10, paddingBottom = 0
+                UserInputTextField(
+                    title = "Password",
+                    content = passwordState,
+                    hide = true,
+                    paddingTop = 10,
+                    paddingBottom = 0
                 ) { loginViewModel.updatePassword(it) }
                 ErrorText(error = passwordErrorState)
             }
@@ -140,6 +152,18 @@ fun LoginScreen(navController: NavHostController,
                     .padding(top = 15.dp, bottom = 30.dp)
                     .clickable(enabled = true) {
                         loginViewModel.updateShowConfirmEmailDialog(true)
+                    },
+                textAlign = TextAlign.Center,
+                color = JessChatLex.buttonTextColor,
+            )
+            Text(
+                text = "Request Verification Code",
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 15.dp, bottom = 30.dp)
+                    .clickable(enabled = true) {
+                        loginViewModel.updateShowRequestCodeDialog(true)
                     },
                 textAlign = TextAlign.Center,
                 color = JessChatLex.buttonTextColor,
@@ -208,6 +232,24 @@ fun LoginScreen(navController: NavHostController,
             )
         }
 
+        if (showRequestCodeDialog) {
+            CustomDialog(
+                title = "Request Verification Code",
+                message = "Please enter the email associated with the account.",
+                fieldOne = "Email",
+                onDismiss = { loginViewModel.updateShowRequestCodeDialog(false) },
+                okOnClick = { list ->
+                    list?.let {
+                        val error = InputValidation.verifyEmail(list.get(0))
+                        if (error == "") {
+                            
+                        }
+                    }
+
+                },
+                cancelOnClick = { loginViewModel.updateShowRequestCodeDialog(false) })
+        }
+
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -218,5 +260,6 @@ fun LoginScreen(navController: NavHostController,
             CustomCircularProgressBar()
         }
     }
+
 
 }

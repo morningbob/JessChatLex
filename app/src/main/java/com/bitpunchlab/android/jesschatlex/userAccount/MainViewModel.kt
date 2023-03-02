@@ -37,6 +37,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     //var newMessage : StateFlow<Message?> = _newMessage
     private val _loadingAlpha = MutableStateFlow<Float>(0f)
     val loadingAlpha: StateFlow<Float> = _loadingAlpha.asStateFlow()
+    val _userName = MutableStateFlow<String>("")
+    var userName : StateFlow<String> = _userName.asStateFlow()
+    val _userEmail = MutableStateFlow<String>("")
+    var userEmail : StateFlow<String> = _userEmail.asStateFlow()
+
+
 
     // listen to login status
     init {
@@ -47,6 +53,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             isLoggedIn.collect() { it ->
                 if (it) {
                     //retrieveUserName()
+                    val pair = CognitoClient.getUserNameEmail()
+                    pair?.let {
+                        _userName.value = it.first
+                        _userEmail.value = it.second
+                    }
                 }
             }
         }
@@ -157,6 +168,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             CognitoClient.logoutUser()
         }
     }
+
+
 }
 
 class MainViewModelFactory(private val application: Application)

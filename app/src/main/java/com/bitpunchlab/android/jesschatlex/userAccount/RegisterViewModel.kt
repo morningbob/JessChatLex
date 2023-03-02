@@ -9,6 +9,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.saveable
 import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
+import com.bitpunchlab.android.jesschatlex.helpers.InputValidation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,19 +76,19 @@ class RegisterViewModel() : ViewModel() {
 
     fun updateName(inputName: String) {
         _nameState.value = inputName
-        _nameErrorState.value = verifyName(inputName)
+        _nameErrorState.value = InputValidation.verifyName(inputName)
     }
     fun updateEmail(inputEmail: String) {
         _emailState.value = inputEmail
-        _emailErrorState.value = verifyEmail(inputEmail)
+        _emailErrorState.value = InputValidation.verifyEmail(inputEmail)
     }
     fun updatePassword(inputPass: String) {
         _passwordState.value = inputPass
-        _passwordErrorState.value = verifyPassword(inputPass)
+        _passwordErrorState.value = InputValidation.verifyPassword(inputPass)
     }
     fun updateConfirmPassword(inputConfirm: String) {
         _confirmPassState.value = inputConfirm
-        _confirmPassErrorState.value = verifyConfirmPass(passwordState.value, inputConfirm)
+        _confirmPassErrorState.value = InputValidation.verifyConfirmPass(passwordState.value, inputConfirm)
     }
 
     private fun verifyName(inputName: String) : String {

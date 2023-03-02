@@ -14,6 +14,8 @@ import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
 import com.amplifyframework.auth.options.AuthSignUpOptions
 import com.amplifyframework.kotlin.core.Amplify
 import kotlinx.coroutines.*
+import org.json.JSONException
+import org.json.JSONObject
 import java.security.InvalidParameterException
 
 object CognitoClient {
@@ -74,20 +76,49 @@ object CognitoClient {
             }
         }
 
-
-/*
-    suspend fun getUserName(email: String) : Boolean =
-        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun getUserNameEmail() : Pair<String, String>? =
+        suspendCancellableCoroutine<Pair<String, String>?> { cancellableContinuation ->
             CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
                 try {
                     val result = Amplify.Auth.fetchUserAttributes()
-                } catch (exception: Exception) {
+                    var name : String? = null
+                    var email : String? = null
+                    Log.i("Cognito Client, getUserName", "got back $result")
+                    //parseUserName(result)
+                    for (each in result) {
+                        if (each.key == AuthUserAttributeKey.name()) {
+                            Log.i("each, name value", each.value)
+                            name = each.value
+                        }
+                        if (each.key == AuthUserAttributeKey.email()) {
+                            Log.i("each, email value", each.value)
+                            email = each.value
+                        }
+                        if (name != null && email != null) {
+                            cancellableContinuation.resume(Pair(name, email)) {}
+                        }
+                    }
+                    cancellableContinuation.resume(null) {}
 
+                } catch (exception: Exception) {
+                    Log.i("Cognito Client, getUserName", "failed")
+                    cancellableContinuation.resume(null) {}
                 }
             }
 
     }
-*/
+
+    private fun parseUserName(jsonString: String) : String? {
+        try {
+            val dataJson = JSONObject(jsonString)
+            Log.i("parsing user name", "the parsed object: $dataJson")
+        } catch (e: JSONException) {
+            Log.e("JSON Parser", "Error parsing data $e")
+        }
+        return ""
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun recoverUser(email: String) : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->

@@ -77,7 +77,7 @@ fun CreateAccountScreen(navController: NavHostController,
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center,
+            //verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
 
         ) {
@@ -98,11 +98,11 @@ fun CreateAccountScreen(navController: NavHostController,
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        //.padding(top = 0.dp, bottom = 30.dp, end = 80.dp)
+                        //.padding(top = 100.dp, bottom = 30.dp)
                         .background(JessChatLex.greenBackground),
 
                     ) {
-                    TitleText(title = "Register", paddingTop = 60, paddingBottom = 60)
+                    TitleText(title = "Register", paddingTop = 100, paddingBottom = 100)
                 }
 
                 //HeaderImage(
@@ -126,7 +126,11 @@ fun CreateAccountScreen(navController: NavHostController,
                     }
                     ErrorText(error = confirmPassErrorState)
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(bottom = 50.dp)
+                ) {
                     AppButton(
                         title = "Send",
                         onClick = onSendClicked,

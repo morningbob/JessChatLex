@@ -12,6 +12,7 @@ object JessChatLex {
     val background = Color(0xFFabe2ed)
     val greenBackground = Color(0xFF0c7829)
     val brownBackground = Color(0xFF734305)
+    val purpleBackground = Color(0xFF570ad1)
     val disabledGreen = Color(0xFF208c3d)
     val titleColor = Color(0xFF041a87)
     val contentColor = Color(0xFF0b29bd)

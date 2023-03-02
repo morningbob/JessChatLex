@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.saveable
 import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
+import com.bitpunchlab.android.jesschatlex.helpers.InputValidation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -41,6 +42,9 @@ class LoginViewModel : ViewModel() {
     private val _showConfirmEmailStatus = MutableStateFlow<Int>(0)
     val showConfirmEmailStatus: StateFlow<Int> = _showConfirmEmailStatus.asStateFlow()
 
+    private val _showRequestCodeDialog = MutableStateFlow<Boolean>(false)
+    val showRequestCodeDialog: StateFlow<Boolean> = _showRequestCodeDialog.asStateFlow()
+
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
@@ -52,12 +56,12 @@ class LoginViewModel : ViewModel() {
 
     fun updateEmail(inputEmail: String) {
         _emailState.value = inputEmail
-        _emailErrorState.value = verifyEmail(inputEmail)
+        _emailErrorState.value = InputValidation.verifyEmail(inputEmail)
     }
 
     fun updatePassword(inputPass: String) {
         _passwordState.value = inputPass
-        _passwordErrorState.value = verifyPassword(inputPass)
+        _passwordErrorState.value = InputValidation.verifyPassword(inputPass)
     }
 
     private fun verifyEmail(inputEmail: String) : String {
@@ -141,6 +145,10 @@ class LoginViewModel : ViewModel() {
 
     fun updateConfirmEmailStatus(newValue: Int) {
         _showConfirmEmailStatus.value = newValue
+    }
+
+    fun updateShowRequestCodeDialog(newValue: Boolean) {
+        _showRequestCodeDialog.value = newValue
     }
 }
 /*
