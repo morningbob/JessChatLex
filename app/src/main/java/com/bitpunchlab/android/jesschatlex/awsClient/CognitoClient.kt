@@ -135,12 +135,40 @@ object CognitoClient {
             }
         }
 
+    suspend fun resendVerificationCode(email: String) : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
+                try {
+                    val result = Amplify.Auth.resendSignUpCode(email)
+                    cancellableContinuation.resume(true) {}
+                } catch (exception: Exception) {
+                    cancellableContinuation.resume(false) {}
+                }
+
+            }
+        }
+
+    suspend fun confirmResetPassword(email: String, newPassword: String, code: String) : Boolean =
+        suspendCancellableCoroutine { cancellableContinuation ->
+            CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
+                try {
+                    val result = Amplify.Auth.confirmResetPassword(email, newPassword, code)
+                    Log.i("confirm reset password", "success $result")
+                    cancellableContinuation.resume(true) {}
+                } catch (exception: Exception) {
+                    Log.i("confirm reset password", "failed")
+                    cancellableContinuation.resume(false) {}
+                }
+            }
+        }
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun confirmVerificationCode(email: String, code: String) : Boolean =
+    suspend fun confirmVerificationCodeSignUp(email: String, code: String) : Boolean =
         suspendCancellableCoroutine<Boolean> {  cancellableContinuation ->
             CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
                 try {
                     val result = Amplify.Auth.confirmSignUp(email, code)
+
                     Log.i("send verification code", "result $result")
                     cancellableContinuation.resume(true) {}
                 } catch (exception: Exception) {

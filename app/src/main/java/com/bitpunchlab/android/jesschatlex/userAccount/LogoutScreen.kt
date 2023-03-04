@@ -1,10 +1,7 @@
 package com.bitpunchlab.android.jesschatlex.userAccount
 
 import android.graphics.fonts.FontStyle
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -17,6 +14,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.bitpunchlab.android.jesschatlex.Login
 import com.bitpunchlab.android.jesschatlex.base.CustomCircularProgressBar
+import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 
 @Composable
 fun LogoutScreen(navController: NavHostController,
@@ -28,7 +26,6 @@ fun LogoutScreen(navController: NavHostController,
     }
 
     mainViewModel.logoutUser()
-    //loadingAlpha = 1f
 
     LaunchedEffect(key1 = loginState) {
         if (!loginState) {
@@ -39,7 +36,7 @@ fun LogoutScreen(navController: NavHostController,
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colors.background
+        color = JessChatLex.lightBlueBackground
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -48,17 +45,20 @@ fun LogoutScreen(navController: NavHostController,
                 .alpha(loadingAlpha),
 
             ) {
-            CustomCircularProgressBar()
-        }
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Logging Out",
-                fontSize = 20.sp
-            )
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Logging Out",
+                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .padding(bottom = 40.dp)
+                )
+                CustomCircularProgressBar()
+            }
+
         }
 
     }

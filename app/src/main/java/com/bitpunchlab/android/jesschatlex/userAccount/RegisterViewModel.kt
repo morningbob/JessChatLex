@@ -54,14 +54,11 @@ class RegisterViewModel() : ViewModel() {
     var _readyRegister = MutableStateFlow<Boolean>(false)
     val readyRegister: StateFlow<Boolean> = _readyRegister.asStateFlow()
 
-    private val _showFailureDialog = MutableStateFlow<Boolean>(false)
-    val showFailureDialog: StateFlow<Boolean> = _showFailureDialog.asStateFlow()
-
     private val _shouldRedirectLogin = MutableStateFlow<Boolean>(false)
     val shouldRedirectLogin: StateFlow<Boolean> = _shouldRedirectLogin.asStateFlow()
 
-    private val _showSuccessDialog = MutableStateFlow<Boolean>(false)
-    val showSuccessDialog: StateFlow<Boolean> = _showSuccessDialog.asStateFlow()
+    private val _showRegistrationStatusDialog = MutableStateFlow<Int>(0)
+    val showRegistrationStatusDialog : StateFlow<Int> = _showRegistrationStatusDialog.asStateFlow()
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
@@ -91,37 +88,6 @@ class RegisterViewModel() : ViewModel() {
         _confirmPassErrorState.value = InputValidation.verifyConfirmPass(passwordState.value, inputConfirm)
     }
 
-    private fun verifyName(inputName: String) : String {
-        return when (inputName) {
-            "" -> {
-                "Name must not be blank."
-            }
-            else -> {
-                ""
-            }
-        }
-    }
-
-    private fun verifyEmail(inputEmail: String) : String {
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(inputEmail).matches()) {
-            return "Email is invalid."
-        }
-        return ""
-    }
-
-    private fun verifyPassword(inputPassword: String) : String {
-        if (inputPassword.length < 8) return "Password must contain at least 8 characters."
-        if (inputPassword.filter { !it.isLetter() }.firstOrNull() == null)
-            return "Password must contain a special character or a number."
-        return ""
-    }
-
-    private fun verifyConfirmPass(password: String, confirmPassword: String) : String {
-        if (password != confirmPassword) {
-            return "Password and confirm password must be the same."
-        }
-        return ""
-    }
 
     fun registerUser() {
         _loadingAlpha.value = 1f
@@ -133,10 +99,12 @@ class RegisterViewModel() : ViewModel() {
                 // we clear all the field if the registration is successful
                 // and navigate to main
                 resetFields()
-                _showSuccessDialog.value = true
+                //_showSuccessDialog.value = true
+                _showRegistrationStatusDialog.value = 1
                 //_shouldRedirectLogin.value = true
             } else {
-                _showFailureDialog.value = true
+                //_showFailureDialog.value = true
+                _showRegistrationStatusDialog.value = 2
                 _loadingAlpha.value = 0f
             }
             // can't set alpha here, because it will not wait for the result.
@@ -144,7 +112,7 @@ class RegisterViewModel() : ViewModel() {
         }
     }
 
-    private fun resetFields() {
+    fun resetFields() {
         _nameState.value = ""
         _emailState.value = ""
         _passwordState.value = ""
@@ -155,11 +123,10 @@ class RegisterViewModel() : ViewModel() {
         _confirmPassErrorState.value = " "
     }
 
-    fun updateShowDialog(newValue: Boolean) {
-        _showFailureDialog.value = newValue
+    fun updateRegistrationStatusDialog(newValue: Int) {
+        //_showFailureDialog.value = newValue
+        _showRegistrationStatusDialog.value = newValue
     }
 
-    fun updateShowSuccessDialog(newValue: Boolean) {
-        _showSuccessDialog.value = newValue
-    }
+
 }

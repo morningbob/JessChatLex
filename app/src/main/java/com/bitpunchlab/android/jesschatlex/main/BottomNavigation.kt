@@ -28,7 +28,7 @@ fun BottomNavigationBar(navController: NavHostController) {
     val currentDestinations = navBackStackEntry?.destination
 
     BottomNavigation(
-        backgroundColor = JessChatLex.buttonTextColor,
+        backgroundColor = JessChatLex.blueBackground,
         modifier = Modifier.height(70.dp)
     ) {
         bottomItems.forEach { item ->

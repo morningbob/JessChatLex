@@ -1,5 +1,7 @@
 package com.bitpunchlab.android.jesschatlex.helpers
 
+import android.util.Log
+
 object InputValidation {
 
     fun verifyName(inputName: String) : String {
@@ -32,5 +34,18 @@ object InputValidation {
             return "Password and confirm password must be the same."
         }
         return ""
+    }
+
+    fun verifyCode(code: String) : String {
+        if (code.length < 5 || code.length > 8) {
+            return "Invalid verification code"
+        }
+        try {
+            val num = code.toInt()
+            return ""
+        } catch (exception: NumberFormatException) {
+            Log.i("verify code", "code is not a number")
+            return "Wrong verification code"
+        }
     }
 }

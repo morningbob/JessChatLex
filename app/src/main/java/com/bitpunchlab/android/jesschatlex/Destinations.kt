@@ -15,6 +15,11 @@ object CreateAccount : Destinations {
     override val icon = 0
 }
 
+object ForgotPassword : Destinations {
+    override val route: String = "ForgotPassword"
+    override val icon = 0
+}
+
 object Main : Destinations {
     override val route: String = "Main"
     override val icon: Int = R.mipmap.home

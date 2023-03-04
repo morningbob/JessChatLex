@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,6 +39,7 @@ import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
 import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
 import com.bitpunchlab.android.jesschatlex.base.CustomCircularProgressBar
 import com.bitpunchlab.android.jesschatlex.base.GeneralButton
+import com.bitpunchlab.android.jesschatlex.base.sendIcon
 import com.bitpunchlab.android.jesschatlex.helpers.WhoSaid
 import com.bitpunchlab.android.jesschatlex.models.Message
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
@@ -77,19 +79,20 @@ fun MainScreen(navController: NavHostController,
         modifier = Modifier
             .fillMaxSize(),
             //.verticalScroll(rememberScrollState()),
-        color = MaterialTheme.colors.background,
+        color = JessChatLex.lightBlueBackground,
     ) {
         Scaffold(
             bottomBar = { BottomNavigationBar(navController
-                //title = { Text("Jess Chat") } ,
             ) }
         ) {
 
             Column(
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .background(JessChatLex.lightBlueBackground),
                 //.verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+
             ) {
                 LazyColumn(
                     modifier = Modifier
@@ -97,13 +100,11 @@ fun MainScreen(navController: NavHostController,
                         .fillMaxWidth()
                         .padding(30.dp),
                     horizontalAlignment = Alignment.Start
-                    //verticalArrangement = Arrangement.Center,
-                    //horizontalAlignment = Alignment.Start
                 ) {
                     item {
                         mainViewModel.currentMessageList.forEach { message ->
                             val textColor = if (message.whoSaid == WhoSaid.Lex) {
-                                JessChatLex.contentColor
+                                JessChatLex.blueText
                             } else {
                                 JessChatLex.messageColorUser
                             }
@@ -131,43 +132,13 @@ fun MainScreen(navController: NavHostController,
                         }
                     },
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = JessChatLex.buttonTextColor,
+                        focusedBorderColor = JessChatLex.blueBackground,
                         unfocusedBorderColor = MaterialTheme.colors.primary,
-                        placeholderColor = JessChatLex.buttonTextColor),
+                        placeholderColor = JessChatLex.blueBackground),
                     shape = RoundedCornerShape(12.dp),
                     placeholder = { Text(text = "Type your message") }
                 )
-/*
-                GeneralButton(
-                    title = "Send",
-                    onClick = {
-                        mainViewModel.sendMessage(input)
-                        input = ""
-                    },
-                    shouldEnable = true,
-                    paddingTop = 5,
-                    paddingBottom = 0
-                )
 
-                GeneralButton(
-                    title = "Chat Record",
-                    onClick = {
-                        shouldNavigateRecords = true
-                    },
-                    shouldEnable = true,
-                    paddingTop = 5,
-                    paddingBottom = 0
-                )
-
-                GeneralButton(
-                    title = "Logout",
-                    onClick = { mainViewModel.logoutUser() },
-                    shouldEnable = true,
-                    paddingTop = 10,
-                    paddingBottom = 20
-                )
-
- */
             }
             // progress bar
             Box(
@@ -183,17 +154,5 @@ fun MainScreen(navController: NavHostController,
     }
 }
 
-@Composable
-fun sendIcon(onClick: () -> Unit) {
-    IconButton(
-        onClick = { onClick.invoke() }
-    ) {
-        Icon(
-            painter = painterResource(id = R.mipmap.send),
-            contentDescription = "Send Message",
-            Modifier.size(30.dp),
-            tint = JessChatLex.messageColorUser
-        )
-    }
-}
+
 

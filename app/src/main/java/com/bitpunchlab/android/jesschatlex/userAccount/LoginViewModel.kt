@@ -33,17 +33,11 @@ class LoginViewModel : ViewModel() {
     private val _showFailureDialog = MutableStateFlow<Boolean>(false)
     val showFailureDialog: StateFlow<Boolean> = _showFailureDialog.asStateFlow()
 
-    private val _showForgotDialog = MutableStateFlow<Boolean>(false)
-    val showForgotDialog: StateFlow<Boolean> = _showForgotDialog.asStateFlow()
-
     private val _showConfirmEmailDialog = MutableStateFlow<Boolean>(false)
     val showConfirmEmailDialog: StateFlow<Boolean> = _showConfirmEmailDialog.asStateFlow()
 
     private val _showConfirmEmailStatus = MutableStateFlow<Int>(0)
     val showConfirmEmailStatus: StateFlow<Int> = _showConfirmEmailStatus.asStateFlow()
-
-    private val _showRequestCodeDialog = MutableStateFlow<Boolean>(false)
-    val showRequestCodeDialog: StateFlow<Boolean> = _showRequestCodeDialog.asStateFlow()
 
 
     init {
@@ -62,20 +56,6 @@ class LoginViewModel : ViewModel() {
     fun updatePassword(inputPass: String) {
         _passwordState.value = inputPass
         _passwordErrorState.value = InputValidation.verifyPassword(inputPass)
-    }
-
-    private fun verifyEmail(inputEmail: String) : String {
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(inputEmail).matches()) {
-            return "Email is invalid."
-        }
-        return ""
-    }
-
-    private fun verifyPassword(inputPassword: String) : String {
-        if (inputPassword.length < 8) return "Password must contain at least 8 characters."
-        if (inputPassword.filter { !it.isLetter() }.firstOrNull() == null)
-            return "Password must contain a special character or a number."
-        return ""
     }
 
     fun loginUser() {
@@ -112,7 +92,7 @@ class LoginViewModel : ViewModel() {
         Log.i("verify confirm code", "received: $code")
         _loadingAlpha.value = 1f
         CoroutineScope(Dispatchers.IO).launch {
-            if (CognitoClient.confirmVerificationCode(email, code)) {
+            if (CognitoClient.confirmVerificationCodeSignUp(email, code)) {
                 Log.i("verify code", "success")
                 // show success alert
                 _loadingAlpha.value = 0f
@@ -125,18 +105,20 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    private fun resetPassword() {
-        // show dialog to get email
-        // check email exist in Cognito
-        //recoverUser()
+    fun sendVerificationCode(email: String) {
+        _loadingAlpha.value = 1f
+        CoroutineScope(Dispatchers.IO).launch {
+            if (CognitoClient.resendVerificationCode(email)) {
+                _loadingAlpha.value = 0f
+
+            } else {
+                _loadingAlpha.value = 0f
+            }
+        }
     }
 
     fun updateShowDialog(newValue: Boolean) {
         _showFailureDialog.value = newValue
-    }
-
-    fun updateShowForgotDialog(newValue: Boolean) {
-        _showForgotDialog.value = newValue
     }
 
     fun updateShowConfirmEmailDialog(newValue: Boolean) {
@@ -146,95 +128,4 @@ class LoginViewModel : ViewModel() {
     fun updateConfirmEmailStatus(newValue: Int) {
         _showConfirmEmailStatus.value = newValue
     }
-
-    fun updateShowRequestCodeDialog(newValue: Boolean) {
-        _showRequestCodeDialog.value = newValue
-    }
 }
-/*
-
-var email by savedStateHandle.saveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-        private set
-    var password by savedStateHandle.saveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-        private set
-    var emailError by savedStateHandle.saveable {
-        mutableStateOf("")
-    }
-    var passwordError by savedStateHandle.saveable {
-        mutableStateOf("")
-    }
-    var loadingAlpha by savedStateHandle.saveable {
-        mutableStateOf(0f)
-    }
-    var shouldNavigateMain by savedStateHandle.saveable {
-        mutableStateOf(false)
-    }
-    var shouldNavigateSignUp by savedStateHandle.saveable {
-        mutableStateOf(false)
-    }
- */
-
-
-    //private val _readyRegisterState = MutableStateFlow<Boolean>(false)
-    //val readyRegisterState : StateFlow<Boolean> = _readyRegisterState
-
-    //fun updateEmail(inputEmail: String) {
-    //    _emailState.value = inputEmail
-    //    _emailErrorState.value = verifyEmail(inputEmail)
-    //}
-
-    //fun updatePassword(inputPass: String) {
-    //    _passwordState.value = inputPass
-    //    _passwordErrorState.value = verifyPassword(inputPass)
-    //}
-
-
-
-/*
-class LoginViewModel : ViewModel() {
-
-    private val _emailState = MutableStateFlow<String>("")
-    val emailState : StateFlow<String> = _emailState.asStateFlow()
-
-    private val _passwordState = MutableStateFlow<String>("")
-    val passwordState : StateFlow<String> = _passwordState.asStateFlow()
-
-    private val _emailErrorState = MutableStateFlow<String>(" ")
-    val emailErrorState : StateFlow<String> = _emailErrorState.asStateFlow()
-
-    private val _passwordErrorState = MutableStateFlow<String>(" ")
-    val passwordErrorState : StateFlow<String> = _passwordErrorState.asStateFlow()
-
-    //private val _readyRegisterState = MutableStateFlow<Boolean>(false)
-    //val readyRegisterState : StateFlow<Boolean> = _readyRegisterState
-
-    fun updateEmail(inputEmail: String) {
-        _emailState.value = inputEmail
-        _emailErrorState.value = verifyEmail(inputEmail)
-    }
-
-    fun updatePassword(inputPass: String) {
-        _passwordState.value = inputPass
-        _passwordErrorState.value = verifyPassword(inputPass)
-    }
-
-    private fun verifyEmail(inputEmail: String) : String {
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(inputEmail).matches()) {
-            return "Email is invalid."
-        }
-        return ""
-    }
-
-    private fun verifyPassword(inputPassword: String) : String {
-        if (inputPassword.length < 8) return "Password must contain at least 8 characters."
-        if (inputPassword.filter { !it.isLetter() }.firstOrNull() == null)
-            return "Password must contain a special character or a number."
-        return ""
-    }
-}
-
- */

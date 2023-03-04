@@ -7,9 +7,7 @@ import com.bitpunchlab.android.jesschatlex.base.DialogButton
 import com.bitpunchlab.android.jesschatlex.helpers.InputValidation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class ProfileViewModel : ViewModel() {
@@ -25,17 +23,33 @@ class ProfileViewModel : ViewModel() {
     val _confirmPassword = MutableStateFlow<String>("")
     var confirmPassword : StateFlow<String> = _confirmPassword.asStateFlow()
 
-    val _currentPassError = MutableStateFlow<String>("")
+    val _currentPassError = MutableStateFlow<String>(" ")
     var currentPassError : StateFlow<String> = _currentPassError.asStateFlow()
 
-    val _newPassError = MutableStateFlow<String>("")
+    val _newPassError = MutableStateFlow<String>(" ")
     var newPassError : StateFlow<String> = _newPassError.asStateFlow()
 
-    val _confirmPassError = MutableStateFlow<String>("")
+    val _confirmPassError = MutableStateFlow<String>(" ")
     var confirmPassError : StateFlow<String> = _confirmPassError.asStateFlow()
 
     val _changePassResult = MutableStateFlow<Int>(0)
     var changePassResult : StateFlow<Int> = _changePassResult.asStateFlow()
+
+    val _readyChange = MutableStateFlow<Boolean>(false)
+    var readyChange : StateFlow<Boolean> = _readyChange.asStateFlow()
+
+    private val _loadingAlpha = MutableStateFlow<Float>(0f)
+    val loadingAlpha: StateFlow<Float> = _loadingAlpha.asStateFlow()
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            combine(currentPassError, newPassError, confirmPassError) { current, new, confirm ->
+                if (current == "" && new == "" && confirm == "") {
+                    _readyChange.value = true
+                }
+            }.collect()
+        }
+    }
 
     fun updateShouldChangePassword(newValue: Boolean) {
         _shouldChangePassword.value = newValue
@@ -64,12 +78,15 @@ class ProfileViewModel : ViewModel() {
     // 1 is succeed, 2 is failed, corresponding dialogs will be displayed
     fun resetPassword(email: String) {
         CoroutineScope(Dispatchers.IO).launch {
+            _loadingAlpha.value = 1f
             if (CognitoClient.recoverUser(email)) {
                 Log.i("reset password", "success")
                 // alert user
+                _loadingAlpha.value = 0f
                 _changePassResult.value = 1
             } else {
                 // alert user
+                _loadingAlpha.value = 0f
                 _changePassResult.value = 2
             }
         }

@@ -25,7 +25,7 @@ val Typography = Typography(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 18.sp,
-        color = JessChatLex.contentColor
+        color = JessChatLex.blueText
     ),
     body2 = TextStyle(
         fontFamily = FontFamily.Default,

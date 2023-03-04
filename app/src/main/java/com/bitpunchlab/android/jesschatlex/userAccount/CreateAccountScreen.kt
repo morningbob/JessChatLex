@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -47,8 +48,7 @@ fun CreateAccountScreen(navController: NavHostController,
     val confirmPassErrorState by registerViewModel.confirmPassErrorState.collectAsState()
     val loadingAlpha by registerViewModel.loadingAlpha.collectAsState()
     val loginState by mainViewModel.isLoggedIn.collectAsState()
-    val showFailureDialog by registerViewModel.showFailureDialog.collectAsState()
-    val showSuccessDialog by registerViewModel.showSuccessDialog.collectAsState()
+    val showRegistrationStatusDialog by registerViewModel.showRegistrationStatusDialog.collectAsState()
     val readyRegister by registerViewModel.readyRegister.collectAsState()
     val shouldRedirectLogin by registerViewModel.shouldRedirectLogin.collectAsState()
 
@@ -70,7 +70,7 @@ fun CreateAccountScreen(navController: NavHostController,
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colors.background
+        color = JessChatLex.lightGreenBackground
     ) {
 
         Column(
@@ -89,6 +89,7 @@ fun CreateAccountScreen(navController: NavHostController,
 
                 var onSendClicked = {
                     registerViewModel.registerUser()
+
                 }
                 var onLoginClicked = {
                     //registerViewModel.navigateLogin()
@@ -111,20 +112,35 @@ fun CreateAccountScreen(navController: NavHostController,
                 //)
                 //TitleText(title = "Create Account", paddingTop = 30, paddingBottom = 30)
                 Column(horizontalAlignment = Alignment.Start) {
-                    UserInputTextField(title = "Name", content = nameState, hide = false, paddingTop = 30, paddingBottom = 0
+                    UserInputTextField(title = "Name", content = nameState,
+                        textColor = JessChatLex.greenText,
+                        textBorder = JessChatLex.greenBackground,
+                        hide = false,
+                        modifier = Modifier.padding(top = 30.dp)
                     ) { registerViewModel.updateName(it) }
-                    ErrorText(error = nameErrorState)
-                    UserInputTextField(title = "Email", content = emailState, hide = false, paddingTop = 10, paddingBottom = 0
+                    ErrorText(error = nameErrorState, modifier = Modifier)
+                    UserInputTextField(title = "Email", content = emailState,
+                        textColor = JessChatLex.greenText,
+                        textBorder = JessChatLex.greenBackground,
+                        hide = false,
+                        modifier = Modifier.padding(top = 10.dp)
                     ) { registerViewModel.updateEmail(it) }
-                    ErrorText(error = emailErrorState)
-                    UserInputTextField(title = "Password", content = passwordState, hide = true, paddingTop = 10, paddingBottom = 0
+                    ErrorText(error = emailErrorState, modifier = Modifier)
+                    UserInputTextField(title = "Password", content = passwordState,
+                        textColor = JessChatLex.greenText,
+                        textBorder = JessChatLex.greenBackground,
+                        hide = true,
+                        modifier = Modifier.padding(top = 10.dp)
                     ) { registerViewModel.updatePassword(it) }
-                    ErrorText(error = passwordErrorState)
-                    UserInputTextField(title = "Confirm Password", content = confirmPassState, hide = true,
-                        paddingTop = 10, paddingBottom = 0) {
+                    ErrorText(error = passwordErrorState, modifier = Modifier)
+                    UserInputTextField(title = "Confirm Password", content = confirmPassState,
+                        textColor = JessChatLex.greenText,
+                        textBorder = JessChatLex.greenBackground,
+                        hide = true,
+                        modifier = Modifier.padding(top = 10.dp)) {
                         registerViewModel.updateConfirmPassword(it)
                     }
-                    ErrorText(error = confirmPassErrorState)
+                    ErrorText(error = confirmPassErrorState, modifier = Modifier)
                 }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -136,6 +152,7 @@ fun CreateAccountScreen(navController: NavHostController,
                         onClick = onSendClicked,
                         shouldEnable = readyRegister,
                         buttonColor = JessChatLex.greenBackground,
+                        buttonBackground = JessChatLex.lightGreenBackground,
                         modifier = Modifier
                     )
                     AppButton(
@@ -143,28 +160,18 @@ fun CreateAccountScreen(navController: NavHostController,
                         onClick = onLoginClicked,
                         shouldEnable = true,
                         buttonColor = JessChatLex.greenBackground,
+                        buttonBackground = JessChatLex.lightGreenBackground,
                         modifier = Modifier
                     )
 
                 }
             }
         }
-        if (showFailureDialog) {
-            CustomDialog(
-                title = "Registration Failure",
-                message = "There is error registering your account.  Please make sure you have wifi, and the email is not registered before.  Other than that, the server may be in maintenance.  If the problem persists, please contact admin@jessbitcom.pro",
-                onDismiss = { registerViewModel.updateShowDialog(false) },
-                okOnClick = { registerViewModel.updateShowDialog(false) }
-            )
+        if (showRegistrationStatusDialog != 0) {
+            RegistrationStatusDialog(status = showRegistrationStatusDialog,
+                registerViewModel = registerViewModel)
         }
-        if (showSuccessDialog) {
-            CustomDialog(
-                title = "Registration Success",
-                message = "You are successfully registered.  We sent a verification code to your email.  You need to confirm your email before logging in.",
-                onDismiss = { registerViewModel.updateShowSuccessDialog(false) },
-                okOnClick = { registerViewModel.updateShowSuccessDialog(false) }
-            )
-        }
+
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -174,6 +181,31 @@ fun CreateAccountScreen(navController: NavHostController,
             ) {
             CustomCircularProgressBar()
         }
+    }
+}
+
+@Composable
+fun RegistrationStatusDialog(status: Int, registerViewModel: RegisterViewModel) {
+    if (status == 1) {
+        CustomDialog(
+            title = "Registration Success",
+            message = "You are successfully registered.  We sent a verification code to your email.  You need to confirm your email before logging in.",
+            backgroundColor = JessChatLex.lightGreenBackground,
+            buttonColor = JessChatLex.greenBackground,
+            textColor = JessChatLex.greenText,
+            onDismiss = { registerViewModel.updateRegistrationStatusDialog(0) },
+            okOnClick = { registerViewModel.updateRegistrationStatusDialog(0) }
+        )
+    } else if (status == 2) {
+        CustomDialog(
+            title = "Registration Failure",
+            message = "There is error registering your account.  Please make sure you have wifi, and the email is not registered before.  Other than that, the server may be in maintenance.  If the problem persists, please contact admin@jessbitcom.pro",
+            backgroundColor = JessChatLex.dialogGreenBackgound,
+            buttonColor = JessChatLex.greenBackground,
+            textColor = JessChatLex.greenText,
+            onDismiss = { registerViewModel.updateRegistrationStatusDialog(0) },
+            okOnClick = { registerViewModel.updateRegistrationStatusDialog(0) }
+        )
     }
 }
 

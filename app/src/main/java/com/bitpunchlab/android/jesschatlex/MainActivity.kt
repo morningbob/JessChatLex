@@ -76,6 +76,9 @@ fun JessNavigation(application: Application) {
         composable(CreateAccount.route) {
             CreateAccountScreen(navController, mainViewModel)
         }
+        composable(ForgotPassword.route) {
+            ForgotPasswordScreen(navController)
+        }
         composable(Main.route) {
             MainScreen(navController, mainViewModel)
         }

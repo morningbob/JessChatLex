@@ -9,15 +9,16 @@ import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
     primary = JessChatLex.titleColor,
-    primaryVariant = JessChatLex.contentColor,
-    secondary = JessChatLex.buttonTextColor
+    primaryVariant = JessChatLex.blueText,
+    secondary = JessChatLex.blueBackground
 )
 
 private val LightColorPalette = lightColors(
     primary = JessChatLex.titleColor,
-    primaryVariant = JessChatLex.contentColor,
-    secondary = JessChatLex.buttonTextColor,
-    background = JessChatLex.background,
+    primaryVariant = JessChatLex.blueText,
+    secondary = JessChatLex.blueBackground,
+    background = JessChatLex.blueBackground,
+
 
     /* Other default colors to override
 

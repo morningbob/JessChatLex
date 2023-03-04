@@ -1,6 +1,7 @@
 package com.bitpunchlab.android.jesschatlex.main
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,7 +42,7 @@ fun MessagesRecordScreen(navController: NavHostController,
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colors.background,
+        color = JessChatLex.lightBlueBackground,
     ) {
         Scaffold(
             bottomBar = { BottomNavigationBar(navController
@@ -51,13 +52,14 @@ fun MessagesRecordScreen(navController: NavHostController,
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(JessChatLex.lightBlueBackground)
                         .padding(top = 30.dp, start = 30.dp, end = 30.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
                     item {
                         allMessages.forEach { message ->
                             val textColor = if (message.whoSaid == WhoSaid.Lex) {
-                                JessChatLex.contentColor
+                                JessChatLex.blueText
                             } else {
                                 JessChatLex.messageColorUser
                             }
@@ -66,8 +68,8 @@ fun MessagesRecordScreen(navController: NavHostController,
                                 color = textColor,
                                 style = MaterialTheme.typography.body2,
                                 modifier = Modifier
-                                    .padding(8.dp),
-                                fontSize = 20.sp
+                                    .padding(top = 0.dp, bottom = 8.dp, start = 8.dp, end = 8.dp),
+                                fontSize = 18.sp
                             )
                         }
                     }
