@@ -1,12 +1,9 @@
 package com.bitpunchlab.android.jesschatlex.userAccount
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +16,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitpunchlab.android.jesschatlex.base.*
+import com.bitpunchlab.android.jesschatlex.helpers.ColorMode
+import com.bitpunchlab.android.jesschatlex.helpers.Element
 import com.bitpunchlab.android.jesschatlex.main.BottomNavigationBar
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 
@@ -40,10 +39,20 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
     val readyChange by profileViewModel.readyChange.collectAsState()
     val loadingAlpha by profileViewModel.loadingAlpha.collectAsState()
 
+    val lightMode = !isSystemInDarkTheme()
+    fun chooseMode() : ColorMode {
+        if (lightMode) {
+            return ColorMode.LIGHT_GREEN
+        }
+        return ColorMode.DARK_GREEN
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = JessChatLex.lightPurpleBackground
     ) {
+        val mode = chooseMode()
+
         Scaffold(
             bottomBar = { BottomNavigationBar(navController
             ) }
@@ -59,7 +68,7 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                 Column(
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier
-                        .background(JessChatLex.purpleBackground)
+                        .background(JessChatLex.getColor(mode, Element.BANNER))//JessChatLex.purpleBackground)
                         .padding(top = 20.dp, bottom = 20.dp),
 
                     ) {
@@ -78,7 +87,7 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 10.dp),
-                    textColor = JessChatLex.purpleText,
+                    textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
                     textAlign = TextAlign.Center,
                     size = 18.sp
                 )
@@ -95,7 +104,7 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                         .fillMaxWidth()
                         .padding(top = 2.dp, bottom = 12.dp),
                     textAlign = TextAlign.Center,
-                    textColor = JessChatLex.purpleText
+                    textColor = JessChatLex.getColor(mode, Element.TEXT),
                 )
                 GeneralText(
                     textString = "Password",
@@ -115,7 +124,7 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                                 onClick = {
                                     profileViewModel.updateShouldChangePassword(true)
                                 }),
-                        color = JessChatLex.greenBackground
+                        color = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenBackground
                     )
                 } else {
                     Column(
@@ -125,8 +134,8 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                         UserInputTextField(
                             title = "Current Password",
                             content = currentPassword,
-                            textColor = JessChatLex.purpleText,
-                            textBorder = JessChatLex.purpleText,
+                            textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
+                            textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
                             hide = false,
                             modifier = Modifier.padding(bottom = 2.dp),
                             call = { profileViewModel.updateCurrentPassword(it)} )
@@ -138,8 +147,8 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                         UserInputTextField(
                             title = "New Password",
                             content = newPassword,
-                            textColor = JessChatLex.purpleText,
-                            textBorder = JessChatLex.purpleText,
+                            textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
+                            textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
                             hide = false,
                             modifier = Modifier.padding(bottom = 2.dp),
                             call = { profileViewModel.updateNewPassword(it)} )
@@ -152,8 +161,8 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                         UserInputTextField(
                             title = "Confirm Password",
                             content = confirmPassword,
-                            textColor = JessChatLex.purpleText,
-                            textBorder = JessChatLex.purpleText,
+                            textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
+                            textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
                             hide = false,
                             modifier = Modifier.padding(bottom = 2.dp),
                             call = { profileViewModel.updateConfirmPassword(it) },
@@ -172,8 +181,8 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                                 }
                               },
                             shouldEnable = readyChange,
-                            buttonColor = JessChatLex.purpleBackground,
-                            buttonBackground = JessChatLex.lightPurpleBackground,
+                            buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.purpleBackground,
+                            buttonBackground = JessChatLex.getColor(mode, Element.BUTTON_BACKGROUND),//JessChatLex.lightPurpleBackground,
                             modifier = Modifier
                                 .padding(bottom = 100.dp)
                         )
@@ -184,9 +193,9 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                 // show name, email and change password button
             }
             if (changePassResult == 1) {
-                ChangePasswordSuccessDialog(profileViewModel = profileViewModel)
+                ChangePasswordSuccessDialog(profileViewModel = profileViewModel, mode = mode)
             } else if (changePassResult == 2) {
-                ChangePasswordFailureDialog(profileViewModel = profileViewModel)
+                ChangePasswordFailureDialog(profileViewModel = profileViewModel, mode = mode)
             } // 0 - no dialog
             Box(
                 contentAlignment = Alignment.Center,
@@ -202,25 +211,25 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
 }
 
 @Composable
-fun ChangePasswordSuccessDialog(profileViewModel: ProfileViewModel) {
+fun ChangePasswordSuccessDialog(profileViewModel: ProfileViewModel, mode: ColorMode) {
     CustomDialog(
         title = "Updated Password",
         message = "Your password is updated.",
-        backgroundColor = JessChatLex.lightPurpleBackground,
-        buttonColor = JessChatLex.purpleBackground,
-        textColor = JessChatLex.purpleText,
+        backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND),//JessChatLex.lightPurpleBackground,
+        buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.purpleBackground,
+        textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
         onDismiss = { profileViewModel.updateChangePassResult(0) },
         okOnClick = { profileViewModel.updateChangePassResult(0) })
 }
 
 @Composable
-fun ChangePasswordFailureDialog(profileViewModel: ProfileViewModel) {
+fun ChangePasswordFailureDialog(profileViewModel: ProfileViewModel, mode: ColorMode) {
     CustomDialog(
         title = "Update Password Failure",
         message = "We couldn't update your password.  Please make sure you have wifi and try again.  If the problem persists, please contact admin@jessbitcom.pro",
-        backgroundColor = JessChatLex.lightPurpleBackground,
-        buttonColor = JessChatLex.purpleBackground,
-        textColor = JessChatLex.purpleText,
+        backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND),//JessChatLex.lightPurpleBackground,
+        buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.purpleBackground,
+        textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
         onDismiss = { profileViewModel.updateChangePassResult(0) },
         okOnClick = { profileViewModel.updateChangePassResult(0) })
 }

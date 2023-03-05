@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -40,6 +41,8 @@ import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
 import com.bitpunchlab.android.jesschatlex.base.CustomCircularProgressBar
 import com.bitpunchlab.android.jesschatlex.base.GeneralButton
 import com.bitpunchlab.android.jesschatlex.base.sendIcon
+import com.bitpunchlab.android.jesschatlex.helpers.ColorMode
+import com.bitpunchlab.android.jesschatlex.helpers.Element
 import com.bitpunchlab.android.jesschatlex.helpers.WhoSaid
 import com.bitpunchlab.android.jesschatlex.models.Message
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
@@ -74,13 +77,22 @@ fun MainScreen(navController: NavHostController,
             navController.navigate(Records.route)
         }
     }
+    val lightMode = !isSystemInDarkTheme()
+    fun chooseMode() : ColorMode {
+        if (lightMode) {
+            return ColorMode.LIGHT_GREEN
+        }
+        return ColorMode.DARK_GREEN
+    }
 
     Surface(
         modifier = Modifier
             .fillMaxSize(),
             //.verticalScroll(rememberScrollState()),
-        color = JessChatLex.lightBlueBackground,
+        //color = JessChatLex.lightBlueBackground,
     ) {
+        val mode = chooseMode()
+
         Scaffold(
             bottomBar = { BottomNavigationBar(navController
             ) }
@@ -89,7 +101,7 @@ fun MainScreen(navController: NavHostController,
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(JessChatLex.lightBlueBackground),
+                    .background(JessChatLex.getColor(mode, Element.BANNER)),//JessChatLex.lightBlueBackground),
                 //.verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
 
@@ -132,9 +144,9 @@ fun MainScreen(navController: NavHostController,
                         }
                     },
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = JessChatLex.blueBackground,
-                        unfocusedBorderColor = MaterialTheme.colors.primary,
-                        placeholderColor = JessChatLex.blueBackground),
+                        focusedBorderColor = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.blueBackground,
+                        unfocusedBorderColor = JessChatLex.getColor(mode, Element.BANNER),
+                        placeholderColor = JessChatLex.getColor(mode, Element.TEXT)),//JessChatLex.blueBackground),
                     shape = RoundedCornerShape(12.dp),
                     placeholder = { Text(text = "Type your message") }
                 )

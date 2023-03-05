@@ -30,6 +30,8 @@ import com.bitpunchlab.android.jesschatlex.Main
 import com.bitpunchlab.android.jesschatlex.R
 import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
 import com.bitpunchlab.android.jesschatlex.base.*
+import com.bitpunchlab.android.jesschatlex.helpers.ColorMode
+import com.bitpunchlab.android.jesschatlex.helpers.Element
 import com.bitpunchlab.android.jesschatlex.helpers.InputValidation
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 import kotlinx.coroutines.CoroutineScope
@@ -46,9 +48,12 @@ fun LoginScreen(navController: NavHostController,
     //userInfoViewModel: UserInfoViewModel = viewModel(LocalContext.current as ComponentActivity)
 ) {
     val lightMode = !isSystemInDarkTheme()
-    var bannerColor : Color = JessChatLex.blueBackground
-    var textColor : Color = JessChatLex.blueText
-    var backgroundColor : Color = JessChatLex.lightBlueBackground
+    fun chooseMode() : ColorMode {
+        if (lightMode) {
+            return ColorMode.LIGHT_BLUE
+        }
+        return ColorMode.DARK_BLUE
+    }
 
     val emailState by loginViewModel.emailState.collectAsState()
     val passwordState by loginViewModel.passwordState.collectAsState()
@@ -70,25 +75,13 @@ fun LoginScreen(navController: NavHostController,
         }
     }
 
-    fun defineColor() {
-        if (lightMode) {
-            bannerColor = JessChatLex.blueBackground
-            textColor = JessChatLex.blueText
-            backgroundColor = JessChatLex.lightBlueBackground
-        } else {
-            bannerColor = JessChatLex.blueBackground
-            textColor = JessChatLex.blueText
-            backgroundColor = JessChatLex.lightBlueBackground
-        }
-    }
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = JessChatLex.lightBlueBackground,
 
     ) {
-        //isSystemInDarkTheme()
-        defineColor()
+
+        val mode = chooseMode()
 
         val onSendClicked = {
             loginViewModel.loginUser()
@@ -109,7 +102,7 @@ fun LoginScreen(navController: NavHostController,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     //.padding(top = 0.dp, bottom = 30.dp, end = 80.dp)
-                    .background(JessChatLex.blueBackground),
+                    .background(JessChatLex.getColor(mode, Element.BANNER)),//JessChatLex.blueBackground),
 
                 ) {
                 TitleText(title = "Login", paddingTop = 100, paddingBottom = 100)
@@ -126,8 +119,8 @@ fun LoginScreen(navController: NavHostController,
                 UserInputTextField(
                     title = "Email",
                     content = emailState,
-                    textColor = JessChatLex.blueText,
-                    textBorder = JessChatLex.blueBackground,
+                    textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.blueText,
+                    textBorder = JessChatLex.getColor(mode, Element.BANNER),
                     hide = false,
                     modifier = Modifier.padding(top = 30.dp),
 
@@ -136,8 +129,8 @@ fun LoginScreen(navController: NavHostController,
                 UserInputTextField(
                     title = "Password",
                     content = passwordState,
-                    textColor = JessChatLex.blueText,
-                    textBorder = JessChatLex.blueBackground,
+                    textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.blueText,
+                    textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.blueBackground,
                     hide = true,
                     modifier = Modifier.padding(top = 10.dp),
                 ) { loginViewModel.updatePassword(it) }
@@ -147,23 +140,23 @@ fun LoginScreen(navController: NavHostController,
                 title = "Send",
                 onClick = onSendClicked,
                 shouldEnable = readyLogin,
-                buttonColor = JessChatLex.blueBackground,
-                buttonBackground = JessChatLex.lightBlueBackground,
+                buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.blueBackground,
+                buttonBackground = JessChatLex.getColor(mode, Element.BUTTON_BACKGROUND),//JessChatLex.lightBlueBackground,
                 modifier = Modifier
             )
             AppButton(
                 title = "Sign Up",
                 onClick = onSignUpClicked,
                 shouldEnable = true,
-                buttonColor = JessChatLex.blueBackground,
-                buttonBackground = JessChatLex.lightBlueBackground,
+                buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.blueBackground,
+                buttonBackground = JessChatLex.getColor(mode, Element.BUTTON_BACKGROUND),//JessChatLex.lightBlueBackground,
                 modifier = Modifier
             )
             GeneralText(
                 textString = "Forgot Password",
                 modifier = Modifier
                     .padding(top = 10.dp, bottom = 5.dp),
-                textColor = JessChatLex.blueBackground,
+                textColor = JessChatLex.getColor(mode, Element.CLICKABLE),//JessChatLex.blueBackground,
                 textAlign = TextAlign.Center,
                 onClick = { onForgotPasswordClicked.invoke() }
             )
@@ -171,22 +164,23 @@ fun LoginScreen(navController: NavHostController,
                 textString = "Confirm Email",
                 modifier = Modifier
                     .padding(top = 10.dp, bottom = 5.dp),
-                textColor = JessChatLex.blueBackground,
+                textColor = JessChatLex.getColor(mode, Element.CLICKABLE),//JessChatLex.blueBackground,
                 textAlign = TextAlign.Center,
                 onClick = { loginViewModel.updateShowConfirmEmailDialog(true) }
             )
 
         }
         if (showFailureDialog) {
-            LoginFailureDialog(loginViewModel = loginViewModel)
+            LoginFailureDialog(loginViewModel = loginViewModel, mode = mode)
         }
 
         if (showConfirmEmailDialog) {
-            ConfirmEmailDialog(loginViewModel = loginViewModel)
+            ConfirmEmailDialog(loginViewModel = loginViewModel, mode = mode)
         }
 
         if (showConfirmEmailStatus != 0) {
-            ConfirmEmailResultDialog(confirmEmailStatus = showConfirmEmailStatus, loginViewModel = loginViewModel)
+            ConfirmEmailResultDialog(confirmEmailStatus = showConfirmEmailStatus,
+                loginViewModel = loginViewModel, mode = mode)
         }
 
         Box(
@@ -204,25 +198,25 @@ fun LoginScreen(navController: NavHostController,
 
 
 @Composable
-fun LoginFailureDialog(loginViewModel: LoginViewModel) {
+fun LoginFailureDialog(loginViewModel: LoginViewModel, mode: ColorMode) {
     CustomDialog(
         title = "Login Failure",
         message = "Login failed.  Please make sure you have wifi.  Other than that, maybe the email or the password is not correct.  If the problem persists, please contact admin@jessbitcom.pro",
-        backgroundColor = JessChatLex.lightBlueBackground,
-        buttonColor = JessChatLex.blueBackground,
-        textColor = JessChatLex.blueText,
+        backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND),//JessChatLex.lightBlueBackground,
+        buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.blueBackground,
+        textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.blueText,
         onDismiss = { loginViewModel.updateShowDialog(false) },
         okOnClick = { loginViewModel.updateShowDialog(false) })
 }
 
 @Composable
-fun ConfirmEmailDialog(loginViewModel: LoginViewModel) {
+fun ConfirmEmailDialog(loginViewModel: LoginViewModel, mode: ColorMode) {
     CustomDialog(
         title = "Verification Code",
         message = "Please enter the verification code in the email.",
-        backgroundColor = JessChatLex.lightBlueBackground,
-        buttonColor = JessChatLex.blueBackground,
-        textColor = JessChatLex.blueText,
+        backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND),//JessChatLex.lightBlueBackground,
+        buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.blueBackground,
+        textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.blueText,
         fieldOne = "Email",
         fieldTwo = "Confirmation Code",
         onDismiss = { loginViewModel.updateShowConfirmEmailDialog(false) },
@@ -239,14 +233,14 @@ fun ConfirmEmailDialog(loginViewModel: LoginViewModel) {
 }
 
 @Composable
-fun ConfirmEmailResultDialog(confirmEmailStatus: Int, loginViewModel: LoginViewModel) {
+fun ConfirmEmailResultDialog(confirmEmailStatus: Int, loginViewModel: LoginViewModel, mode: ColorMode) {
     if (confirmEmailStatus == 1) {
         CustomDialog(
             title = "Email Verification Success",
             message = "Your email and your account is verified.  Please login with the email.",
-            backgroundColor = JessChatLex.lightBlueBackground,
-            buttonColor = JessChatLex.blueBackground,
-            textColor = JessChatLex.blueText,
+            backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND),//JessChatLex.lightBlueBackground,
+            buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.blueBackground,
+            textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.blueText,
             onDismiss = { loginViewModel.updateConfirmEmailStatus(0) },
             //cancelOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
             okOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
@@ -255,9 +249,9 @@ fun ConfirmEmailResultDialog(confirmEmailStatus: Int, loginViewModel: LoginViewM
         CustomDialog(
             title = "Email Verification Failure",
             message = "We couldn't verify your email.  Please make sure you have wifi, and the confirmation code is correct.",
-            backgroundColor = JessChatLex.lightBlueBackground,
-            buttonColor = JessChatLex.blueBackground,
-            textColor = JessChatLex.blueText,
+            backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND),//JessChatLex.lightBlueBackground,
+            buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.blueBackground,
+            textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.blueText,
             onDismiss = { loginViewModel.updateConfirmEmailStatus(0) },
             //cancelOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
             okOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
