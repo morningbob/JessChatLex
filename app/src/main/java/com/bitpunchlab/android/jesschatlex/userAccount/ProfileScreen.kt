@@ -42,14 +42,14 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
     val lightMode = !isSystemInDarkTheme()
     fun chooseMode() : ColorMode {
         if (lightMode) {
-            return ColorMode.LIGHT_GREEN
+            return ColorMode.LIGHT_PURPLE
         }
-        return ColorMode.DARK_GREEN
+        return ColorMode.DARK_PURPLE
     }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = JessChatLex.lightPurpleBackground
+        //color = JessChatLex.lightPurpleBackground
     ) {
         val mode = chooseMode()
 
@@ -60,7 +60,7 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(JessChatLex.lightPurpleBackground)
+                    .background(JessChatLex.getColor(mode, Element.BACKGROUND))//JessChatLex.lightPurpleBackground)
                     .verticalScroll(rememberScrollState()),
                 //verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -110,7 +110,7 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                     textString = "Password",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
+                        .padding(start = 20.dp, end = 20.dp, bottom = 5.dp),
                     textColor = Color.Black
                 )
                 if (!shouldChangePassword) {
@@ -118,14 +118,15 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                         text = "Change Password",
                         fontSize = 20.sp,
                         modifier = Modifier
-                            .padding(bottom = 30.dp)
+                            .padding(8.dp)
                             .clickable(
                                 enabled = true,
                                 onClick = {
                                     profileViewModel.updateShouldChangePassword(true)
                                 }),
-                        color = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenBackground
+                        color = JessChatLex.getColor(mode, Element.CLICKABLE),//JessChatLex.greenBackground
                     )
+                    Spacer(modifier = Modifier.width(20.dp))
                 } else {
                     Column(
                         modifier = Modifier
@@ -136,11 +137,14 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                             content = currentPassword,
                             textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
                             textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
+                            fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
+                            fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                             hide = false,
                             modifier = Modifier.padding(bottom = 2.dp),
                             call = { profileViewModel.updateCurrentPassword(it)} )
                         ErrorText(
                             error = currentPassError,
+                            color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
                             modifier = Modifier
                                 .padding(bottom = 4.dp, start = 20.dp, end = 20.dp),
                         )
@@ -149,11 +153,14 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                             content = newPassword,
                             textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
                             textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
+                            fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
+                            fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                             hide = false,
                             modifier = Modifier.padding(bottom = 2.dp),
                             call = { profileViewModel.updateNewPassword(it)} )
                         ErrorText(
                             error = newPassError,
+                            color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
                             modifier = Modifier
                                 .padding(bottom = 4.dp, start = 20.dp, end = 20.dp),
                         )
@@ -163,12 +170,15 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                             content = confirmPassword,
                             textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
                             textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
+                            fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
+                            fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                             hide = false,
                             modifier = Modifier.padding(bottom = 2.dp),
                             call = { profileViewModel.updateConfirmPassword(it) },
                         )
                         ErrorText(
                             error = confirmPassError,
+                            color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
                             modifier = Modifier
                                 .padding(bottom = 4.dp, start = 20.dp, end = 20.dp),
                         )
@@ -183,9 +193,11 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                             shouldEnable = readyChange,
                             buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.purpleBackground,
                             buttonBackground = JessChatLex.getColor(mode, Element.BUTTON_BACKGROUND),//JessChatLex.lightPurpleBackground,
+                            buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
                             modifier = Modifier
-                                .padding(bottom = 100.dp)
+                                //.padding(bottom = 100.dp)
                         )
+                        Spacer(modifier = Modifier.width(100.dp))
                     }
 
                 }
@@ -217,6 +229,7 @@ fun ChangePasswordSuccessDialog(profileViewModel: ProfileViewModel, mode: ColorM
         message = "Your password is updated.",
         backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND),//JessChatLex.lightPurpleBackground,
         buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.purpleBackground,
+        buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
         onDismiss = { profileViewModel.updateChangePassResult(0) },
         okOnClick = { profileViewModel.updateChangePassResult(0) })
@@ -229,6 +242,7 @@ fun ChangePasswordFailureDialog(profileViewModel: ProfileViewModel, mode: ColorM
         message = "We couldn't update your password.  Please make sure you have wifi and try again.  If the problem persists, please contact admin@jessbitcom.pro",
         backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND),//JessChatLex.lightPurpleBackground,
         buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.purpleBackground,
+        buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
         onDismiss = { profileViewModel.updateChangePassResult(0) },
         okOnClick = { profileViewModel.updateChangePassResult(0) })

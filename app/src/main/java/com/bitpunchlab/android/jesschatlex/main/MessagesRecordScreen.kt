@@ -2,6 +2,7 @@ package com.bitpunchlab.android.jesschatlex.main
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.bitpunchlab.android.jesschatlex.helpers.ColorMode
+import com.bitpunchlab.android.jesschatlex.helpers.Element
 import com.bitpunchlab.android.jesschatlex.helpers.WhoSaid
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 import com.bitpunchlab.android.jesschatlex.userAccount.MainViewModel
@@ -29,6 +32,13 @@ import com.bitpunchlab.android.jesschatlex.userAccount.MainViewModel
 fun MessagesRecordScreen(navController: NavHostController,
                          mainViewModel: MainViewModel
 ) {
+    val lightMode = !isSystemInDarkTheme()
+    fun chooseMode() : ColorMode {
+        if (lightMode) {
+            return ColorMode.LIGHT
+        }
+        return ColorMode.DARK
+    }
     // a list to display all messages
     // from the oldest to the newest
     // scroll to the newest automatically
@@ -42,26 +52,28 @@ fun MessagesRecordScreen(navController: NavHostController,
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = JessChatLex.lightBlueBackground,
     ) {
+        val mode = chooseMode()
+
         Scaffold(
             bottomBar = { BottomNavigationBar(navController
-            ) }
+            ) },
+            //backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND)
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(JessChatLex.lightBlueBackground)
+                        .background(JessChatLex.getColor(mode, Element.BACKGROUND))
                         .padding(top = 30.dp, start = 30.dp, end = 30.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
                     item {
                         allMessages.forEach { message ->
                             val textColor = if (message.whoSaid == WhoSaid.Lex) {
-                                JessChatLex.blueText
+                                JessChatLex.getColor(mode, Element.BOT_MESSAGE)//JessChatLex.blueText
                             } else {
-                                JessChatLex.messageColorUser
+                                JessChatLex.getColor(mode, Element.USER_MESSAGE)//JessChatLex.messageColorUser
                             }
                             Text(
                                 text = message.message,

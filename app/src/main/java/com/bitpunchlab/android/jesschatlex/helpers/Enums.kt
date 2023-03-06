@@ -13,16 +13,25 @@ enum class ColorMode {
     DARK_BLUE,
     DARK_GREEN,
     DARK_BROWN,
-    DARK_PURPLE
+    DARK_PURPLE,
+    LIGHT,
+    DARK
 }
 
 enum class Element {
     BANNER,
     TEXT,
     BACKGROUND,
+    FIELD_BACKGROUND,
+    FIELD_BORDER,
     BUTTON_COLOR,
     BUTTON_BORDER,
     BUTTON_TEXT,
     BUTTON_BACKGROUND,
-    CLICKABLE
+    CLICKABLE,
+    USER_MESSAGE,
+    BOT_MESSAGE,
+    SEND_ICON,
+    ERROR_TEXT,
+    OTHER_TEXT
 }

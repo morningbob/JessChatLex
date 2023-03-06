@@ -84,7 +84,8 @@ fun CreateAccountScreen(navController: NavHostController,
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .background(JessChatLex.getColor(mode, Element.BACKGROUND)),
             //verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
 
@@ -92,7 +93,7 @@ fun CreateAccountScreen(navController: NavHostController,
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
 
                 var onSendClicked = {
@@ -123,32 +124,40 @@ fun CreateAccountScreen(navController: NavHostController,
                     UserInputTextField(title = "Name", content = nameState,
                         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenText,
                         textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.greenBackground,
+                        fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
+                        fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                         hide = false,
                         modifier = Modifier.padding(top = 30.dp)
                     ) { registerViewModel.updateName(it) }
-                    ErrorText(error = nameErrorState, modifier = Modifier)
+                    ErrorText(error = nameErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT), modifier = Modifier)
                     UserInputTextField(title = "Email", content = emailState,
                         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenText,
                         textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.greenBackground,
+                        fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
+                        fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                         hide = false,
                         modifier = Modifier.padding(top = 10.dp)
                     ) { registerViewModel.updateEmail(it) }
-                    ErrorText(error = emailErrorState, modifier = Modifier)
+                    ErrorText(error = emailErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT), modifier = Modifier)
                     UserInputTextField(title = "Password", content = passwordState,
                         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenText,
                         textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.greenBackground,
+                        fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
+                        fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                         hide = true,
                         modifier = Modifier.padding(top = 10.dp)
                     ) { registerViewModel.updatePassword(it) }
-                    ErrorText(error = passwordErrorState, modifier = Modifier)
+                    ErrorText(error = passwordErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT), modifier = Modifier)
                     UserInputTextField(title = "Confirm Password", content = confirmPassState,
                         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenText,
                         textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.greenBackground,
+                        fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
+                        fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                         hide = true,
                         modifier = Modifier.padding(top = 10.dp)) {
                         registerViewModel.updateConfirmPassword(it)
                     }
-                    ErrorText(error = confirmPassErrorState, modifier = Modifier)
+                    ErrorText(error = confirmPassErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT), modifier = Modifier)
                 }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -161,6 +170,7 @@ fun CreateAccountScreen(navController: NavHostController,
                         shouldEnable = readyRegister,
                         buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.greenBackground,
                         buttonBackground = JessChatLex.getColor(mode, Element.BUTTON_BACKGROUND),//JessChatLex.lightGreenBackground,
+                        buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
                         modifier = Modifier
                     )
                     AppButton(
@@ -169,6 +179,7 @@ fun CreateAccountScreen(navController: NavHostController,
                         shouldEnable = true,
                         buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.greenBackground,
                         buttonBackground = JessChatLex.getColor(mode, Element.BUTTON_BACKGROUND),//JessChatLex.lightGreenBackground,
+                        buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
                         modifier = Modifier
                     )
 
@@ -201,6 +212,7 @@ fun RegistrationStatusDialog(status: Int, registerViewModel: RegisterViewModel, 
             backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND),//JessChatLex.lightGreenBackground,
             buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.greenBackground,
             textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenText,
+            buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
             onDismiss = { registerViewModel.updateRegistrationStatusDialog(0) },
             okOnClick = { registerViewModel.updateRegistrationStatusDialog(0) }
         )
@@ -211,6 +223,7 @@ fun RegistrationStatusDialog(status: Int, registerViewModel: RegisterViewModel, 
             backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND),//JessChatLex.lightGreenBackground,
             buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.greenBackground,
             textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenText,
+            buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
             onDismiss = { registerViewModel.updateRegistrationStatusDialog(0) },
             okOnClick = { registerViewModel.updateRegistrationStatusDialog(0) }
         )

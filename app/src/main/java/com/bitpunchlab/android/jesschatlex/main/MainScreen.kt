@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -20,27 +22,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.amplifyframework.auth.AuthChannelEventName
-import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
-import com.amplifyframework.core.InitializationStatus
-import com.amplifyframework.hub.HubChannel
-import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.Login
 import com.bitpunchlab.android.jesschatlex.R
 import com.bitpunchlab.android.jesschatlex.Records
 import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
 import com.bitpunchlab.android.jesschatlex.awsClient.CognitoClient
 import com.bitpunchlab.android.jesschatlex.base.CustomCircularProgressBar
-import com.bitpunchlab.android.jesschatlex.base.GeneralButton
-import com.bitpunchlab.android.jesschatlex.base.sendIcon
+import com.bitpunchlab.android.jesschatlex.base.SendIcon
 import com.bitpunchlab.android.jesschatlex.helpers.ColorMode
 import com.bitpunchlab.android.jesschatlex.helpers.Element
 import com.bitpunchlab.android.jesschatlex.helpers.WhoSaid
@@ -80,9 +72,9 @@ fun MainScreen(navController: NavHostController,
     val lightMode = !isSystemInDarkTheme()
     fun chooseMode() : ColorMode {
         if (lightMode) {
-            return ColorMode.LIGHT_GREEN
+            return ColorMode.LIGHT
         }
-        return ColorMode.DARK_GREEN
+        return ColorMode.DARK
     }
 
     Surface(
@@ -91,7 +83,7 @@ fun MainScreen(navController: NavHostController,
             //.verticalScroll(rememberScrollState()),
         //color = JessChatLex.lightBlueBackground,
     ) {
-        val mode = chooseMode()
+        val themeMode = chooseMode()
 
         Scaffold(
             bottomBar = { BottomNavigationBar(navController
@@ -101,7 +93,7 @@ fun MainScreen(navController: NavHostController,
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(JessChatLex.getColor(mode, Element.BANNER)),//JessChatLex.lightBlueBackground),
+                    .background(JessChatLex.getColor(themeMode, Element.BACKGROUND)),//JessChatLex.lightBlueBackground),
                 //.verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
 
@@ -116,9 +108,10 @@ fun MainScreen(navController: NavHostController,
                     item {
                         mainViewModel.currentMessageList.forEach { message ->
                             val textColor = if (message.whoSaid == WhoSaid.Lex) {
-                                JessChatLex.blueText
+                                JessChatLex.getColor(themeMode, Element.BOT_MESSAGE)
                             } else {
-                                JessChatLex.messageColorUser
+                                JessChatLex.getColor(themeMode, Element.USER_MESSAGE)
+                                //JessChatLex.messageColorUser
                             }
                             Text(
                                 text = message.message,
@@ -129,27 +122,48 @@ fun MainScreen(navController: NavHostController,
                         }
                     }
                 }
-
-                OutlinedTextField(
-                    value = input,
-                    onValueChange = { newInput : String ->
-                        input = newInput
-                    },
-                    trailingIcon = {
-                        if (input != "") {
-                            sendIcon {
-                                mainViewModel.sendMessage(input)
-                                input = ""
-                            }
-                        }
-                    },
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.blueBackground,
-                        unfocusedBorderColor = JessChatLex.getColor(mode, Element.BANNER),
-                        placeholderColor = JessChatLex.getColor(mode, Element.TEXT)),//JessChatLex.blueBackground),
-                    shape = RoundedCornerShape(12.dp),
-                    placeholder = { Text(text = "Type your message") }
+                // this is the color of the cursor handle
+                val customTextSelectionColors = TextSelectionColors(
+                    handleColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER),
+                    backgroundColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER),
                 )
+
+                CompositionLocalProvider(
+                    LocalTextSelectionColors provides customTextSelectionColors,
+                ) {
+
+                    OutlinedTextField(
+                        value = input,
+                        onValueChange = { newInput: String ->
+                            input = newInput
+                        },
+                        trailingIcon = {
+                            if (input != "") {
+                                SendIcon(color = JessChatLex.getColor(themeMode, Element.SEND_ICON)) {
+                                    mainViewModel.sendMessage(input)
+                                    input = ""
+                                }
+                            }
+                        },
+                        textStyle = LocalTextStyle.current.copy(color = JessChatLex.getColor(themeMode, Element.FIELD_BORDER)),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            //focusedLabelColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER),
+                            //unfocusedLabelColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER),
+                            focusedBorderColor = JessChatLex.getColor(
+                                themeMode,
+                                Element.FIELD_BORDER
+                            ),//JessChatLex.blueBackground,
+                            unfocusedBorderColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER),
+                            placeholderColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER)
+                        ),//JessChatLex.blueBackground),
+                        //textStyle = LocalTextStyle.current.copy(color = textColor),
+                        shape = RoundedCornerShape(12.dp),
+                        label = { Text(
+                            text = "Type your message",
+                            color = JessChatLex.getColor(themeMode, Element.FIELD_BORDER),
+                        ) }
+                    )
+                }
 
             }
             // progress bar

@@ -4,10 +4,15 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -26,40 +31,56 @@ fun UserInputTextField(title: String, content: String, hide: Boolean,
                        modifier: Modifier, trailingIcon: (@Composable () -> Unit)? = null,
                        textColor: Color = JessChatLex.blueText,
                        textBorder: Color = JessChatLex.blueBackground,
+                       fieldBackground: Color = Color.White,
+                       fieldBorder: Color = JessChatLex.blueBackground,
                         call: (String) -> Unit)  {
 
     val keyboardType = if (hide) { KeyboardType.Password } else { KeyboardType.Text }
 
-    OutlinedTextField(
-        label = { Text(
-            text = title,
-            color = textColor
-        ) },
-        value = content,
-        onValueChange = { newText ->
-            call.invoke(newText)
-        },
-
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 50.dp, end = 50.dp)
-            .then(modifier),
-
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = textBorder,
-            unfocusedBorderColor = textBorder,
-            focusedLabelColor = textBorder,
-            unfocusedLabelColor = textBorder,
-            cursorColor = textBorder,
-            backgroundColor = Color.White,
-            textColor = textColor,
-
-    ),
-        shape = RoundedCornerShape(12.dp),
-        //trailingIcon = trailingIcon
-        //trailingIcon = trailingIconFunction
+    // this is the color of the cursor handle
+    val customTextSelectionColors = TextSelectionColors(
+        handleColor = textColor,
+        backgroundColor = textColor,
     )
+
+    CompositionLocalProvider(
+        LocalTextSelectionColors provides customTextSelectionColors,
+    ) {
+        OutlinedTextField(
+            label = {
+                Text(
+                    text = title,
+                    color = textColor
+                )
+            },
+            value = content,
+            onValueChange = { newText ->
+                call.invoke(newText)
+            },
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 50.dp, end = 50.dp)
+                .then(modifier),
+
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            textStyle = LocalTextStyle.current.copy(color = textColor),
+            //cursorBrush = SolidColor(textColor),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = fieldBorder,
+                unfocusedBorderColor = fieldBorder,
+                focusedLabelColor = textBorder,
+                unfocusedLabelColor = textBorder,
+                cursorColor = textBorder,
+                backgroundColor = fieldBackground,
+                textColor = textColor,
+
+                ),
+            shape = RoundedCornerShape(12.dp),
+            //trailingIcon = trailingIcon
+            //trailingIcon = trailingIconFunction
+        )
+    }
 }
 
 @Composable
@@ -98,7 +119,7 @@ fun GeneralText(textString: String, textColor: Color = MaterialTheme.colors.prim
 }
 
 @Composable
-fun ErrorText(error: String, modifier: Modifier) {
+fun ErrorText(error: String, color: Color = Color.Red, modifier: Modifier) {
     Text(
         text = error,
         modifier = Modifier
@@ -106,56 +127,31 @@ fun ErrorText(error: String, modifier: Modifier) {
             .padding(top = 3.dp, start = 50.dp, end = 50.dp)
             .then(modifier),
         textAlign = TextAlign.Start,
-        style = MaterialTheme.typography.body2
+        style = MaterialTheme.typography.body2,
+        color = color,
     )
-}
-
-@Composable
-fun GeneralButton(title: String, onClick: () -> Unit, shouldEnable: Boolean, paddingTop: Int, paddingBottom: Int) {
-
-    val buttonTextColor = if (shouldEnable) JessChatLex.blueText else Color.Gray
-    val buttonBorderColor = if (shouldEnable) JessChatLex.buttonBorderColor else Color.Gray
-
-    OutlinedButton(
-        onClick = { onClick.invoke() },
-        modifier = Modifier
-            .padding(top = paddingTop.dp, bottom = paddingBottom.dp, start = 30.dp, end = 30.dp)
-            .fillMaxWidth(0.5f),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = Color.Transparent,
-            contentColor = Color.Transparent,
-            disabledContentColor = Color.Transparent,
-            disabledBackgroundColor = Color.Transparent,
-            ),
-
-        border = BorderStroke(2.dp, buttonBorderColor),
-        shape = RoundedCornerShape(12.dp),
-        enabled = shouldEnable,
-
-        ) {
-        Text(
-            text = title,
-            color = buttonTextColor
-        )
-    }
 }
 
 @Composable
 fun AppButton(title: String, onClick: () -> Unit, shouldEnable: Boolean,
               buttonColor: Color = JessChatLex.blueBackground,
               buttonBackground: Color = JessChatLex.lightBlueBackground,
+              buttonBorder: Color = JessChatLex.blueBackground,
               modifier: Modifier) {
-    Button(
+    OutlinedButton(
         onClick = { onClick.invoke() },
+
         colors = ButtonDefaults.buttonColors(
             backgroundColor = buttonColor,
             disabledContentColor = Color.Gray,
-            disabledBackgroundColor = Color.Gray
+            disabledBackgroundColor = Color.Gray,
+
         ),
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 10.dp, bottom = 10.dp, start = 70.dp, end = 70.dp)
             .background(buttonBackground)
+            .border(BorderStroke(2.dp, buttonBorder), RoundedCornerShape(15.dp))
             .then(modifier),
 
         shape = RoundedCornerShape(15.dp),
@@ -183,7 +179,8 @@ fun HeaderImage(resource: Int, description: String, paddingTop: Int, paddingBott
 
 @Composable
 fun CustomDialog(title: String, message: String, backgroundColor: Color = JessChatLex.dialogBlueBackground,
-                 buttonColor: Color = JessChatLex.blueText, textColor: Color = JessChatLex.blueText,
+                 buttonColor: Color = JessChatLex.blueText, buttonBorder: Color = JessChatLex.blueText,
+                 textColor: Color = JessChatLex.blueText,
                  fieldOne: String? = null, fieldTwo: String? = null, onDismiss: () -> Unit,
                  okOnClick: ((List<String>?) -> Unit)? = null, cancelOnClick: ((List<String>?) -> Unit)? = null) {
 
@@ -273,6 +270,7 @@ fun CustomDialog(title: String, message: String, backgroundColor: Color = JessCh
                         DialogButton(
                             title = "OK",
                             color = buttonColor,
+                            border = buttonBorder,
                             onClick = okOnClick,
                             modifier = Modifier,
                             parameter = listOf(fieldOneValue, fieldTwoValue)
@@ -283,6 +281,7 @@ fun CustomDialog(title: String, message: String, backgroundColor: Color = JessCh
                         DialogButton(
                             title = "Cancel",
                             color = buttonColor,
+                            border = buttonBorder,
                             onClick = cancelOnClick,
                             modifier = Modifier
                         )
@@ -295,10 +294,11 @@ fun CustomDialog(title: String, message: String, backgroundColor: Color = JessCh
 
 @Composable
 fun DialogButton(title: String, color: Color = JessChatLex.blueBackground,
+                 border: Color = JessChatLex.blueBackground,
                  parameter: List<String>? = null,
                  onClick: (List<String>?) -> Unit, modifier: Modifier) {
 
-    Button(
+    OutlinedButton(
         onClick = { onClick.invoke(parameter) },
         //modifier = Modifier
         //    .fillMaxWidth(0.5f),
@@ -306,7 +306,9 @@ fun DialogButton(title: String, color: Color = JessChatLex.blueBackground,
         colors = ButtonDefaults.buttonColors(
             backgroundColor = color,
         ),
+
         modifier = modifier
+            .border(BorderStroke(2.dp, border), RoundedCornerShape(10.dp))
     ) {
         Text(
             text = title,
@@ -326,7 +328,7 @@ fun CustomCircularProgressBar() {
 }
 
 @Composable
-fun sendIcon(onClick: () -> Unit) {
+fun SendIcon(color: Color, onClick: () -> Unit) {
     IconButton(
         onClick = { onClick.invoke() }
     ) {
@@ -334,7 +336,7 @@ fun sendIcon(onClick: () -> Unit) {
             painter = painterResource(id = R.mipmap.send),
             contentDescription = "Send Message",
             Modifier.size(30.dp),
-            tint = JessChatLex.messageColorUser
+            tint = color//JessChatLex.messageColorUser
         )
     }
 }

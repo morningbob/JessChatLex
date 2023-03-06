@@ -14,10 +14,10 @@ private val DarkColorPalette = darkColors(
 )
 
 private val LightColorPalette = lightColors(
-    primary = JessChatLex.titleColor,
-    primaryVariant = JessChatLex.blueText,
-    secondary = JessChatLex.blueBackground,
-    background = JessChatLex.blueBackground,
+    primary = Color.Yellow,
+    primaryVariant = Color.Yellow,
+    secondary = Color.Yellow,
+    background = Color.Yellow,
 
 
     /* Other default colors to override
