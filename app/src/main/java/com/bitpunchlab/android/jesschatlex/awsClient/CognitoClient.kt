@@ -109,16 +109,6 @@ object CognitoClient {
 
     }
 
-    private fun parseUserName(jsonString: String) : String? {
-        try {
-            val dataJson = JSONObject(jsonString)
-            Log.i("parsing user name", "the parsed object: $dataJson")
-        } catch (e: JSONException) {
-            Log.e("JSON Parser", "Error parsing data $e")
-        }
-        return ""
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun recoverUser(email: String) : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
@@ -134,6 +124,21 @@ object CognitoClient {
                 }
             }
         }
+
+    suspend fun updatePassword(oldPassword: String, newPassword: String) : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
+                try {
+                    val result = Amplify.Auth.updatePassword(oldPassword, newPassword)
+                    Log.i("password update", "success $result")
+                    cancellableContinuation.resume(true) {}
+                } catch (exception: Exception) {
+                    Log.i("password update", "error: $exception")
+                    cancellableContinuation.resume(false) {}
+                }
+            }
+        }
+
 
     suspend fun resendVerificationCode(email: String) : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->

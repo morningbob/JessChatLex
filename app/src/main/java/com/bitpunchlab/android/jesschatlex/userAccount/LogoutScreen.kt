@@ -1,6 +1,8 @@
 package com.bitpunchlab.android.jesschatlex.userAccount
 
 import android.graphics.fonts.FontStyle
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -14,11 +16,21 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.bitpunchlab.android.jesschatlex.Login
 import com.bitpunchlab.android.jesschatlex.base.CustomCircularProgressBar
+import com.bitpunchlab.android.jesschatlex.helpers.ColorMode
+import com.bitpunchlab.android.jesschatlex.helpers.Element
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 
 @Composable
 fun LogoutScreen(navController: NavHostController,
                  mainViewModel: MainViewModel) {
+
+    val lightMode = !isSystemInDarkTheme()
+    fun chooseMode() : ColorMode {
+        if (lightMode) {
+            return ColorMode.LIGHT
+        }
+        return ColorMode.DARK
+    }
 
     val loginState by mainViewModel.isLoggedIn.collectAsState()
     var loadingAlpha by remember {
@@ -36,8 +48,10 @@ fun LogoutScreen(navController: NavHostController,
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = JessChatLex.lightBlueBackground
+        //color = JessChatLex.lightBlueBackground
     ) {
+        val mode = chooseMode()
+
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -46,15 +60,19 @@ fun LogoutScreen(navController: NavHostController,
 
             ) {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(JessChatLex.getColor(mode, Element.BACKGROUND)),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
+
             ) {
                 Text(
                     text = "Logging Out",
                     fontSize = 20.sp,
                     modifier = Modifier
-                        .padding(bottom = 40.dp)
+                        .padding(bottom = 40.dp),
+                    color = JessChatLex.getColor(mode, Element.TEXT)
                 )
                 CustomCircularProgressBar()
             }

@@ -114,7 +114,7 @@ object JessChatLex {
         darkBrown.put(Element.CLICKABLE, Color.Yellow)
         darkBrown.put(Element.ERROR_TEXT, Color(0xFFe897e7))
         darkBrown.put(Element.OTHER_TEXT, Color(0xFF2677e0))
-//
+
         darkPurple.put(Element.BANNER, Color(0xFF3a056b))
         darkPurple.put(Element.TEXT, Color(0xFFbc9bfa))
         darkPurple.put(Element.BACKGROUND, Color(0xFF3a056b))
@@ -133,6 +133,9 @@ object JessChatLex {
         light.put(Element.BOT_MESSAGE, Color(0xFF04470e))
         light.put(Element.FIELD_BORDER, Color(0xFF2677e0))
         light.put(Element.SEND_ICON, Color(0xFF088a36))
+        light.put(Element.BOTTOM_ICON, Color.White)
+        light.put(Element.BOTTOM_BACKGROUND, Color(0xFF2677e0))
+        light.put(Element.BOTTOM_SELECTED, Color(0xFF0b29bd))
         //light.put(Element.ERROR_TEXT, Color.Red)
 
         dark.put(Element.BACKGROUND, Color(0xFF032e73))
@@ -140,6 +143,9 @@ object JessChatLex {
         dark.put(Element.BOT_MESSAGE, Color(0xFFe897e7))
         dark.put(Element.FIELD_BORDER, Color(0xFF94d0f2))
         dark.put(Element.SEND_ICON, Color(0xFFb3f5c7))
+        dark.put(Element.BOTTOM_ICON, Color(0xFFb3f5c7))
+        dark.put(Element.BOTTOM_BACKGROUND, Color(0xFF032e73))
+        dark.put(Element.BOTTOM_SELECTED, Color.Yellow)
         //dark.put(Element.ERROR_TEXT, Color(0xFFe897e7))
 
         colorScheme.put(ColorMode.LIGHT_BLUE, lightBlue)

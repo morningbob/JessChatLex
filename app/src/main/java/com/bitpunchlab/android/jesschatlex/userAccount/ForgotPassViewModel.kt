@@ -96,14 +96,27 @@ class ForgotPassViewModel : ViewModel() {
                 // display alert
                 _loadingAlpha.value = 0f
                 _resetPasswordStatus.value = 1
+                resetFields()
             } else {
                 _loadingAlpha.value = 0f
                 _resetPasswordStatus.value = 2
+                resetFields()
             }
         }
     }
 
     fun updateResetPasswordStatus(newValue: Int) {
         _resetPasswordStatus.value = newValue
+    }
+
+    fun resetFields() {
+        _email.value = ""
+        _verificationCode.value = ""
+        _newPassword.value = ""
+        _confirmPass.value = ""
+        _emailError.value = " "
+        _codeError.value = " "
+        _newPassError.value = " "
+        _confirmPassError.value = " "
     }
 }

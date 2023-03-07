@@ -65,16 +65,14 @@ fun UserInputTextField(title: String, content: String, hide: Boolean,
 
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             textStyle = LocalTextStyle.current.copy(color = textColor),
-            //cursorBrush = SolidColor(textColor),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = fieldBorder,
                 unfocusedBorderColor = fieldBorder,
                 focusedLabelColor = textBorder,
                 unfocusedLabelColor = textBorder,
-                cursorColor = textBorder,
+                cursorColor = textColor,//Color.White,
                 backgroundColor = fieldBackground,
                 textColor = textColor,
-
                 ),
             shape = RoundedCornerShape(12.dp),
             //trailingIcon = trailingIcon

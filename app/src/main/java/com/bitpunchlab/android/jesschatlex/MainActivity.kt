@@ -5,8 +5,12 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -69,30 +73,33 @@ fun JessNavigation(application: Application) {
     val navController = rememberNavController()
     val mainViewModel : MainViewModel = viewModel(factory = MainViewModelFactory(application))
 
-    NavHost(navController = navController, startDestination = Login.route) {
-        composable(Login.route) {
-            LoginScreen(navController, mainViewModel)
-        }
-        composable(CreateAccount.route) {
-            CreateAccountScreen(navController, mainViewModel)
-        }
-        composable(ForgotPassword.route) {
-            ForgotPasswordScreen(navController)
-        }
-        composable(Main.route) {
-            MainScreen(navController, mainViewModel)
-        }
-        composable(Records.route) {
-            MessagesRecordScreen(navController, mainViewModel)
-        }
-        composable(Profile.route) {
-            ProfileScreen(navController, mainViewModel)
-        }
-        composable(Logout.route) {
-            LogoutScreen(navController, mainViewModel)
-        }
+    //Box(modifier = Modifier.navigationBarsPadding()) {
 
-    }
+        NavHost(navController = navController, startDestination = Login.route) {
+            composable(Login.route) {
+                LoginScreen(navController, mainViewModel)
+            }
+            composable(CreateAccount.route) {
+                CreateAccountScreen(navController, mainViewModel)
+            }
+            composable(ForgotPassword.route) {
+                ForgotPasswordScreen(navController)
+            }
+            composable(Main.route) {
+                MainScreen(navController, mainViewModel)
+            }
+            composable(Records.route) {
+                MessagesRecordScreen(navController, mainViewModel)
+            }
+            composable(Profile.route) {
+                ProfileScreen(navController, mainViewModel)
+            }
+            composable(Logout.route) {
+                LogoutScreen(navController, mainViewModel)
+            }
+
+        }
+    //}
 }
 
 @Preview(showBackground = true)

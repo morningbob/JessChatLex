@@ -129,7 +129,10 @@ fun CreateAccountScreen(navController: NavHostController,
                         hide = false,
                         modifier = Modifier.padding(top = 30.dp)
                     ) { registerViewModel.updateName(it) }
-                    ErrorText(error = nameErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT), modifier = Modifier)
+                    ErrorText(error = nameErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
+                        modifier = Modifier
+                            .padding(start = 20.dp, end = 20.dp)
+                    )
                     UserInputTextField(title = "Email", content = emailState,
                         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenText,
                         textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.greenBackground,
@@ -138,7 +141,10 @@ fun CreateAccountScreen(navController: NavHostController,
                         hide = false,
                         modifier = Modifier.padding(top = 10.dp)
                     ) { registerViewModel.updateEmail(it) }
-                    ErrorText(error = emailErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT), modifier = Modifier)
+                    ErrorText(error = emailErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
+                        modifier = Modifier
+                            .padding(start = 20.dp, end = 20.dp)
+                    )
                     UserInputTextField(title = "Password", content = passwordState,
                         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenText,
                         textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.greenBackground,
@@ -147,7 +153,10 @@ fun CreateAccountScreen(navController: NavHostController,
                         hide = true,
                         modifier = Modifier.padding(top = 10.dp)
                     ) { registerViewModel.updatePassword(it) }
-                    ErrorText(error = passwordErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT), modifier = Modifier)
+                    ErrorText(error = passwordErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
+                        modifier = Modifier
+                            .padding(start = 20.dp, end = 20.dp)
+                    )
                     UserInputTextField(title = "Confirm Password", content = confirmPassState,
                         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenText,
                         textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.greenBackground,
@@ -157,7 +166,10 @@ fun CreateAccountScreen(navController: NavHostController,
                         modifier = Modifier.padding(top = 10.dp)) {
                         registerViewModel.updateConfirmPassword(it)
                     }
-                    ErrorText(error = confirmPassErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT), modifier = Modifier)
+                    ErrorText(error = confirmPassErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
+                        modifier = Modifier
+                            .padding(start = 20.dp, end = 20.dp)
+                    )
                 }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,

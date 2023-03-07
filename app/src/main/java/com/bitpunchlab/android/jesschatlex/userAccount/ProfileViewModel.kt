@@ -76,19 +76,30 @@ class ProfileViewModel : ViewModel() {
     }
 
     // 1 is succeed, 2 is failed, corresponding dialogs will be displayed
-    fun resetPassword(email: String) {
+    fun updatePassword(oldPassword: String, newPassword: String) {
         CoroutineScope(Dispatchers.IO).launch {
             _loadingAlpha.value = 1f
-            if (CognitoClient.recoverUser(email)) {
+            if (CognitoClient.updatePassword(oldPassword, newPassword)) {
                 Log.i("reset password", "success")
                 // alert user
                 _loadingAlpha.value = 0f
                 _changePassResult.value = 1
+                resetFields()
             } else {
                 // alert user
                 _loadingAlpha.value = 0f
                 _changePassResult.value = 2
+                resetFields()
             }
         }
+    }
+
+    fun resetFields() {
+        _currentPassword.value = ""
+        _newPassword.value = ""
+        _confirmPassword.value = ""
+        _currentPassError.value = " "
+        _newPassError.value = " "
+        _confirmPassError.value = " "
     }
 }

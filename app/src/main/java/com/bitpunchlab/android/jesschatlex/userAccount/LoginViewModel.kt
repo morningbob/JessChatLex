@@ -75,7 +75,7 @@ class LoginViewModel : ViewModel() {
 
         }
     }
-
+/*
     fun recoverUser(email: String) {
         CoroutineScope(Dispatchers.IO).launch {
             if (CognitoClient.recoverUser(email)) {
@@ -85,7 +85,7 @@ class LoginViewModel : ViewModel() {
             }
         }
     }
-
+*/
     // 0 means not ready, 1 means success, 2 means failure
     fun verifyConfirmCode(email: String, code: String) {
         //_showConfirmEmailDialog.value = true

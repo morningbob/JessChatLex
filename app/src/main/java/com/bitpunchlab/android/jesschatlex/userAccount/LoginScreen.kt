@@ -128,7 +128,9 @@ fun LoginScreen(navController: NavHostController,
                     modifier = Modifier.padding(top = 30.dp),
 
                 ) { loginViewModel.updateEmail(it) }
-                ErrorText(error = emailErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT), modifier = Modifier)
+                ErrorText(error = emailErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
+                    modifier = Modifier
+                        .padding(start = 20.dp, end = 20.dp))
                 UserInputTextField(
                     title = "Password",
                     content = passwordState,
@@ -139,7 +141,10 @@ fun LoginScreen(navController: NavHostController,
                     hide = true,
                     modifier = Modifier.padding(top = 10.dp),
                 ) { loginViewModel.updatePassword(it) }
-                ErrorText(error = passwordErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT), modifier = Modifier)
+                ErrorText(error = passwordErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
+                    modifier = Modifier
+                        .padding(start = 20.dp, end = 20.dp)
+                )
             }
             AppButton(
                 title = "Send",

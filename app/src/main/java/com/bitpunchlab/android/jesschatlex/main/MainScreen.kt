@@ -58,6 +58,8 @@ fun MainScreen(navController: NavHostController,
 
     var shouldNavigateRecords by remember { mutableStateOf(false) }
 
+    val innerPadding = 70.dp
+
     LaunchedEffect(key1 = loginState) {
         if (!loginState) {
             navController.navigate(Login.route)
@@ -79,7 +81,9 @@ fun MainScreen(navController: NavHostController,
 
     Surface(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .navigationBarsPadding(),
+
             //.verticalScroll(rememberScrollState()),
         //color = JessChatLex.lightBlueBackground,
     ) {
@@ -87,15 +91,18 @@ fun MainScreen(navController: NavHostController,
 
         Scaffold(
             bottomBar = { BottomNavigationBar(navController
-            ) }
-        ) {
+            ) },
 
+        ) {
+            //innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(JessChatLex.getColor(themeMode, Element.BACKGROUND)),//JessChatLex.lightBlueBackground),
+                    .background(JessChatLex.getColor(themeMode, Element.BACKGROUND)),//,//JessChatLex.lightBlueBackground),
+                    //.navigationBarsPadding(),
                 //.verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
+
 
             ) {
                 LazyColumn(
@@ -154,7 +161,8 @@ fun MainScreen(navController: NavHostController,
                                 Element.FIELD_BORDER
                             ),//JessChatLex.blueBackground,
                             unfocusedBorderColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER),
-                            placeholderColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER)
+                            placeholderColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER),
+                            cursorColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER)
                         ),//JessChatLex.blueBackground),
                         //textStyle = LocalTextStyle.current.copy(color = textColor),
                         shape = RoundedCornerShape(12.dp),

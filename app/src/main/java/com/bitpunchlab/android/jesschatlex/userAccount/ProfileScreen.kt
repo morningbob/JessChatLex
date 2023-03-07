@@ -47,6 +47,8 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
         return ColorMode.DARK_PURPLE
     }
 
+    val paddingValues = WindowInsets.navigationBars.asPaddingValues()
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         //color = JessChatLex.lightPurpleBackground
@@ -54,13 +56,18 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
         val mode = chooseMode()
 
         Scaffold(
-            bottomBar = { BottomNavigationBar(navController
+            bottomBar = { BottomNavigationBar(navController//, paddingValues = paddingValues
             ) }
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(JessChatLex.getColor(mode, Element.BACKGROUND))//JessChatLex.lightPurpleBackground)
+                    .background(
+                        JessChatLex.getColor(
+                            mode,
+                            Element.BACKGROUND
+                        )
+                    )//JessChatLex.lightPurpleBackground)
                     .verticalScroll(rememberScrollState()),
                 //verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -68,7 +75,12 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                 Column(
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier
-                        .background(JessChatLex.getColor(mode, Element.BANNER))//JessChatLex.purpleBackground)
+                        .background(
+                            JessChatLex.getColor(
+                                mode,
+                                Element.BANNER
+                            )
+                        )//JessChatLex.purpleBackground)
                         .padding(top = 20.dp, bottom = 20.dp),
 
                     ) {
@@ -78,9 +90,9 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                     textString = "Name",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, top = 50.dp, bottom = 10.dp),
+                        .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 10.dp),
                     size = 18.sp,
-                    textColor = Color.Black,
+                    textColor = JessChatLex.getColor(mode, Element.OTHER_TEXT),
                 )
                 GeneralText(
                     textString = userName,
@@ -96,7 +108,7 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
-                    textColor = Color.Black
+                    textColor = JessChatLex.getColor(mode, Element.OTHER_TEXT)
                 )
                 GeneralText(
                     textString = userEmail,
@@ -111,7 +123,7 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp, bottom = 5.dp),
-                    textColor = Color.Black
+                    textColor = JessChatLex.getColor(mode, Element.OTHER_TEXT)
                 )
                 if (!shouldChangePassword) {
                     Text(
@@ -186,9 +198,9 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                         AppButton(
                             title = "Send",
                             onClick = {
-                                if (userEmail.isNotEmpty()) {
-                                    profileViewModel.resetPassword(userEmail)
-                                }
+                                //if (userEmail.isNotEmpty()) {
+                                profileViewModel.updatePassword(currentPassword, newPassword)
+                                //}
                               },
                             shouldEnable = readyChange,
                             buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.purpleBackground,
@@ -197,7 +209,15 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                             modifier = Modifier
                                 //.padding(bottom = 100.dp)
                         )
-                        Spacer(modifier = Modifier.width(100.dp))
+                        //Spacer(modifier = Modifier.width(200.dp))
+                        // this column is used to set the bottom padding , so that the content won't be
+                        // overlapped by the bottom navigation bar
+                        Column() {
+                            Text(
+                                text="a",
+                                modifier = Modifier.padding(top = 100.dp)
+                            )
+                        }
                     }
 
                 }

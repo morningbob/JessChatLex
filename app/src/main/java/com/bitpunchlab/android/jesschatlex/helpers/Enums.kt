@@ -33,5 +33,9 @@ enum class Element {
     BOT_MESSAGE,
     SEND_ICON,
     ERROR_TEXT,
-    OTHER_TEXT
+    OTHER_TEXT,
+    BOTTOM_ICON,
+    BOTTOM_BACKGROUND,
+    BOTTOM_SELECTED
+
 }

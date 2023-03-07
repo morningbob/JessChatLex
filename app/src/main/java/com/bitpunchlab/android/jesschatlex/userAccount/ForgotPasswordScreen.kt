@@ -67,7 +67,7 @@ fun ForgotPasswordScreen(navController: NavHostController,
             Text(
                 text = "You need a verification code in order to change your password.",
                 modifier = Modifier
-                    .padding(top = 30.dp, bottom = 18.dp, start = 50.dp, end = 50.dp),
+                    .padding(top = 0.dp, bottom = 30.dp, start = 50.dp, end = 50.dp),
                 color = JessChatLex.getColor(mode, Element.TEXT)//JessChatLex.brownText
             )
             if (chosenOption == 0) {
@@ -84,7 +84,7 @@ fun ForgotPasswordScreen(navController: NavHostController,
                         //.padding(top = 10.dp)
 
                 )
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(50.dp))
                 AppButton(
                     title = "I don't have a verification code",
                     onClick = {

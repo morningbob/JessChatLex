@@ -1,7 +1,7 @@
 package com.bitpunchlab.android.jesschatlex.main
 
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,10 +12,20 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.bitpunchlab.android.jesschatlex.*
+import com.bitpunchlab.android.jesschatlex.helpers.ColorMode
+import com.bitpunchlab.android.jesschatlex.helpers.Element
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
+
+    val lightMode = !isSystemInDarkTheme()
+    fun chooseMode() : ColorMode {
+        if (lightMode) {
+            return ColorMode.LIGHT
+        }
+        return ColorMode.DARK
+    }
 
     val bottomItems = listOf<Destinations>(
         Main,
@@ -27,34 +37,45 @@ fun BottomNavigationBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestinations = navBackStackEntry?.destination
 
-    BottomNavigation(
-        backgroundColor = JessChatLex.blueBackground,
-        modifier = Modifier.height(70.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            //.padding(70.dp)
     ) {
-        bottomItems.forEach { item ->
+        val mode = chooseMode()
 
-            BottomNavigationItem(
-                icon = {
-                    Icon(
-                        painterResource(id = item.icon),
-                        contentDescription = item.route,
-                        modifier = Modifier.size(40.dp))
-                       },
-                selectedContentColor = Color.White,
-                unselectedContentColor = MaterialTheme.colors.primaryVariant,
-                selected = currentDestinations?.route == item.route,
-                onClick = {
-                    navController.navigate(item.route) {
-                        navController.graph.startDestinationRoute?.let { dest ->
-                            popUpTo(dest) {
-                                saveState = true
+        BottomNavigation(
+            backgroundColor = JessChatLex.getColor(mode, Element.BOTTOM_BACKGROUND),//JessChatLex.blueBackground,
+            modifier = Modifier.height(70.dp),
+
+        ) {
+            bottomItems.forEach { item ->
+
+                BottomNavigationItem(
+                    icon = {
+                        Icon(
+                            painterResource(id = item.icon),
+                            contentDescription = item.route,
+                            modifier = Modifier.size(40.dp)
+                        )
+                    },
+                    selectedContentColor = JessChatLex.getColor(mode, Element.BOTTOM_SELECTED),//Color.White,
+                    unselectedContentColor = JessChatLex.getColor(mode, Element.BOTTOM_ICON),//MaterialTheme.colors.primaryVariant,
+                    selected = currentDestinations?.route == item.route,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            navController.graph.startDestinationRoute?.let { dest ->
+                                popUpTo(dest) {
+                                    saveState = true
+                                }
                             }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
-                }
-            )
+                )
+            }
         }
     }
 
