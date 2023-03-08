@@ -36,6 +36,6 @@ enum class Element {
     OTHER_TEXT,
     BOTTOM_ICON,
     BOTTOM_BACKGROUND,
-    BOTTOM_SELECTED
+    BOTTOM_UNSELECTED
 
 }

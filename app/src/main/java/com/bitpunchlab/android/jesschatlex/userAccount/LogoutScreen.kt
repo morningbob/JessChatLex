@@ -72,7 +72,7 @@ fun LogoutScreen(navController: NavHostController,
                     fontSize = 20.sp,
                     modifier = Modifier
                         .padding(bottom = 40.dp),
-                    color = JessChatLex.getColor(mode, Element.TEXT)
+                    color = JessChatLex.getColor(mode, Element.FIELD_BORDER)
                 )
                 CustomCircularProgressBar()
             }

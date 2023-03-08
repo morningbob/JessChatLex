@@ -60,8 +60,8 @@ fun BottomNavigationBar(navController: NavHostController) {
                             modifier = Modifier.size(40.dp)
                         )
                     },
-                    selectedContentColor = JessChatLex.getColor(mode, Element.BOTTOM_SELECTED),//Color.White,
-                    unselectedContentColor = JessChatLex.getColor(mode, Element.BOTTOM_ICON),//MaterialTheme.colors.primaryVariant,
+                    selectedContentColor = JessChatLex.getColor(mode, Element.BOTTOM_ICON),//Color.White,
+                    unselectedContentColor = JessChatLex.getColor(mode, Element.BOTTOM_UNSELECTED),//MaterialTheme.colors.primaryVariant,
                     selected = currentDestinations?.route == item.route,
                     onClick = {
                         navController.navigate(item.route) {

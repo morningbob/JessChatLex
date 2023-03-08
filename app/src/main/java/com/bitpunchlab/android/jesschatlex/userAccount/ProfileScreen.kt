@@ -51,7 +51,6 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        //color = JessChatLex.lightPurpleBackground
     ) {
         val mode = chooseMode()
 
@@ -86,144 +85,151 @@ fun ProfileScreen(navController: NavHostController, mainViewModel: MainViewModel
                     ) {
                     TitleText(title = "Profile", paddingTop = 100, paddingBottom = 100)
                 }
-                GeneralText(
-                    textString = "Name",
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 10.dp),
-                    size = 18.sp,
-                    textColor = JessChatLex.getColor(mode, Element.OTHER_TEXT),
-                )
-                GeneralText(
-                    textString = userName,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp),
-                    textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
-                    textAlign = TextAlign.Center,
-                    size = 18.sp
-                )
-                GeneralText(
-                    textString = "Email",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
-                    textColor = JessChatLex.getColor(mode, Element.OTHER_TEXT)
-                )
-                GeneralText(
-                    textString = userEmail,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 2.dp, bottom = 12.dp),
-                    textAlign = TextAlign.Center,
-                    textColor = JessChatLex.getColor(mode, Element.TEXT),
-                )
-                GeneralText(
-                    textString = "Password",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, bottom = 5.dp),
-                    textColor = JessChatLex.getColor(mode, Element.OTHER_TEXT)
-                )
-                if (!shouldChangePassword) {
-                    Text(
-                        text = "Change Password",
-                        fontSize = 20.sp,
+                        .background(JessChatLex.getColor(mode, Element.BACKGROUND)),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    GeneralText(
+                        textString = "Name",
                         modifier = Modifier
-                            .padding(8.dp)
-                            .clickable(
-                                enabled = true,
-                                onClick = {
-                                    profileViewModel.updateShouldChangePassword(true)
-                                }),
-                        color = JessChatLex.getColor(mode, Element.CLICKABLE),//JessChatLex.greenBackground
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 10.dp),
+                        size = 18.sp,
+                        textColor = JessChatLex.getColor(mode, Element.OTHER_TEXT),
                     )
-                    Spacer(modifier = Modifier.width(20.dp))
-                } else {
-                    Column(
+                    GeneralText(
+                        textString = userName,
                         modifier = Modifier
-                            .padding(start = 20.dp, end = 20.dp)
-                    ) {
-                        UserInputTextField(
-                            title = "Current Password",
-                            content = currentPassword,
-                            textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
-                            textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
-                            fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
-                            fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
-                            hide = false,
-                            modifier = Modifier.padding(bottom = 2.dp),
-                            call = { profileViewModel.updateCurrentPassword(it)} )
-                        ErrorText(
-                            error = currentPassError,
-                            color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
+                            .fillMaxWidth()
+                            .padding(bottom = 10.dp),
+                        textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
+                        textAlign = TextAlign.Center,
+                        size = 18.sp
+                    )
+                    GeneralText(
+                        textString = "Email",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
+                        textColor = JessChatLex.getColor(mode, Element.OTHER_TEXT)
+                    )
+                    GeneralText(
+                        textString = userEmail,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 2.dp, bottom = 12.dp),
+                        textAlign = TextAlign.Center,
+                        textColor = JessChatLex.getColor(mode, Element.TEXT),
+                    )
+                    GeneralText(
+                        textString = "Password",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp, bottom = 5.dp),
+                        textColor = JessChatLex.getColor(mode, Element.OTHER_TEXT)
+                    )
+                    if (!shouldChangePassword) {
+                        Text(
+                            text = "Change Password",
+                            fontSize = 20.sp,
                             modifier = Modifier
-                                .padding(bottom = 4.dp, start = 20.dp, end = 20.dp),
+                                .padding(8.dp)
+                                .clickable(
+                                    enabled = true,
+                                    onClick = {
+                                        profileViewModel.updateShouldChangePassword(true)
+                                    }),
+                            color = JessChatLex.getColor(mode, Element.CLICKABLE),//JessChatLex.greenBackground
                         )
-                        UserInputTextField(
-                            title = "New Password",
-                            content = newPassword,
-                            textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
-                            textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
-                            fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
-                            fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
-                            hide = false,
-                            modifier = Modifier.padding(bottom = 2.dp),
-                            call = { profileViewModel.updateNewPassword(it)} )
-                        ErrorText(
-                            error = newPassError,
-                            color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
+                        Spacer(modifier = Modifier.width(20.dp))
+                    } else {
+                        Column(
                             modifier = Modifier
-                                .padding(bottom = 4.dp, start = 20.dp, end = 20.dp),
-                        )
-
-                        UserInputTextField(
-                            title = "Confirm Password",
-                            content = confirmPassword,
-                            textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
-                            textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
-                            fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
-                            fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
-                            hide = false,
-                            modifier = Modifier.padding(bottom = 2.dp),
-                            call = { profileViewModel.updateConfirmPassword(it) },
-                        )
-                        ErrorText(
-                            error = confirmPassError,
-                            color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
-                            modifier = Modifier
-                                .padding(bottom = 4.dp, start = 20.dp, end = 20.dp),
-                        )
-
-                        AppButton(
-                            title = "Send",
-                            onClick = {
-                                //if (userEmail.isNotEmpty()) {
-                                profileViewModel.updatePassword(currentPassword, newPassword)
-                                //}
-                              },
-                            shouldEnable = readyChange,
-                            buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.purpleBackground,
-                            buttonBackground = JessChatLex.getColor(mode, Element.BUTTON_BACKGROUND),//JessChatLex.lightPurpleBackground,
-                            buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
-                            modifier = Modifier
-                                //.padding(bottom = 100.dp)
-                        )
-                        //Spacer(modifier = Modifier.width(200.dp))
-                        // this column is used to set the bottom padding , so that the content won't be
-                        // overlapped by the bottom navigation bar
-                        Column() {
-                            Text(
-                                text="a",
-                                modifier = Modifier.padding(top = 100.dp)
+                                .padding(start = 20.dp, end = 20.dp)
+                        ) {
+                            UserInputTextField(
+                                title = "Current Password",
+                                content = currentPassword,
+                                textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
+                                textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
+                                fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
+                                fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
+                                hide = false,
+                                modifier = Modifier.padding(bottom = 2.dp, start = 50.dp, end = 50.dp),
+                                call = { profileViewModel.updateCurrentPassword(it)} )
+                            ErrorText(
+                                error = currentPassError,
+                                color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
+                                modifier = Modifier
+                                    .padding(bottom = 4.dp, start = 20.dp, end = 20.dp),
                             )
+                            UserInputTextField(
+                                title = "New Password",
+                                content = newPassword,
+                                textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
+                                textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
+                                fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
+                                fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
+                                hide = false,
+                                modifier = Modifier.padding(bottom = 2.dp, start = 50.dp, end = 50.dp),
+                                call = { profileViewModel.updateNewPassword(it)} )
+                            ErrorText(
+                                error = newPassError,
+                                color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
+                                modifier = Modifier
+                                    .padding(bottom = 4.dp, start = 20.dp, end = 20.dp),
+                            )
+
+                            UserInputTextField(
+                                title = "Confirm Password",
+                                content = confirmPassword,
+                                textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
+                                textBorder = JessChatLex.getColor(mode, Element.BANNER),//JessChatLex.purpleText,
+                                fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
+                                fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
+                                hide = false,
+                                modifier = Modifier.padding(bottom = 2.dp, start = 50.dp, end = 50.dp),
+                                call = { profileViewModel.updateConfirmPassword(it) },
+                            )
+                            ErrorText(
+                                error = confirmPassError,
+                                color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
+                                modifier = Modifier
+                                    .padding(bottom = 4.dp, start = 20.dp, end = 20.dp),
+                            )
+
+                            AppButton(
+                                title = "Send",
+                                onClick = {
+                                    //if (userEmail.isNotEmpty()) {
+                                    profileViewModel.updatePassword(currentPassword, newPassword)
+                                    //}
+                                },
+                                shouldEnable = readyChange,
+                                buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.purpleBackground,
+                                buttonBackground = JessChatLex.getColor(mode, Element.BUTTON_BACKGROUND),//JessChatLex.lightPurpleBackground,
+                                buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
+                                modifier = Modifier
+                                //.padding(bottom = 100.dp)
+                            )
+                            //Spacer(modifier = Modifier.width(200.dp))
+                            // this column is used to set the bottom padding , so that the content won't be
+                            // overlapped by the bottom navigation bar
+                            Column() {
+                                Text(
+                                    text="a",
+                                    modifier = Modifier.padding(top = 100.dp)
+                                )
+                            }
                         }
+
                     }
 
+                    // show name, email and change password button
+                }
                 }
 
-                // show name, email and change password button
-            }
             if (changePassResult == 1) {
                 ChangePasswordSuccessDialog(profileViewModel = profileViewModel, mode = mode)
             } else if (changePassResult == 2) {
@@ -252,7 +258,7 @@ fun ChangePasswordSuccessDialog(profileViewModel: ProfileViewModel, mode: ColorM
         buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
         onDismiss = { profileViewModel.updateChangePassResult(0) },
-        okOnClick = { profileViewModel.updateChangePassResult(0) })
+        okOnClick = { _, _ -> profileViewModel.updateChangePassResult(0) })
 }
 
 @Composable
@@ -265,5 +271,5 @@ fun ChangePasswordFailureDialog(profileViewModel: ProfileViewModel, mode: ColorM
         buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.purpleText,
         onDismiss = { profileViewModel.updateChangePassResult(0) },
-        okOnClick = { profileViewModel.updateChangePassResult(0) })
+        okOnClick = { _, _ -> profileViewModel.updateChangePassResult(0) })
 }

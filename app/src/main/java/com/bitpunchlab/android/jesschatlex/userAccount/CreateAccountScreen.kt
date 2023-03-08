@@ -127,7 +127,7 @@ fun CreateAccountScreen(navController: NavHostController,
                         fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
                         fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                         hide = false,
-                        modifier = Modifier.padding(top = 30.dp)
+                        modifier = Modifier.padding(top = 30.dp, start = 50.dp, end = 50.dp)
                     ) { registerViewModel.updateName(it) }
                     ErrorText(error = nameErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
                         modifier = Modifier
@@ -139,7 +139,7 @@ fun CreateAccountScreen(navController: NavHostController,
                         fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
                         fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                         hide = false,
-                        modifier = Modifier.padding(top = 10.dp)
+                        modifier = Modifier.padding(top = 10.dp, start = 50.dp, end = 50.dp)
                     ) { registerViewModel.updateEmail(it) }
                     ErrorText(error = emailErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
                         modifier = Modifier
@@ -151,7 +151,7 @@ fun CreateAccountScreen(navController: NavHostController,
                         fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
                         fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                         hide = true,
-                        modifier = Modifier.padding(top = 10.dp)
+                        modifier = Modifier.padding(top = 10.dp, start = 50.dp, end = 50.dp)
                     ) { registerViewModel.updatePassword(it) }
                     ErrorText(error = passwordErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
                         modifier = Modifier
@@ -163,7 +163,7 @@ fun CreateAccountScreen(navController: NavHostController,
                         fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
                         fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                         hide = true,
-                        modifier = Modifier.padding(top = 10.dp)) {
+                        modifier = Modifier.padding(top = 10.dp, start = 50.dp, end = 50.dp)) {
                         registerViewModel.updateConfirmPassword(it)
                     }
                     ErrorText(error = confirmPassErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
@@ -226,7 +226,7 @@ fun RegistrationStatusDialog(status: Int, registerViewModel: RegisterViewModel, 
             textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenText,
             buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
             onDismiss = { registerViewModel.updateRegistrationStatusDialog(0) },
-            okOnClick = { registerViewModel.updateRegistrationStatusDialog(0) }
+            okOnClick = { _, _ -> registerViewModel.updateRegistrationStatusDialog(0) }
         )
     } else if (status == 2) {
         CustomDialog(
@@ -237,7 +237,7 @@ fun RegistrationStatusDialog(status: Int, registerViewModel: RegisterViewModel, 
             textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.greenText,
             buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
             onDismiss = { registerViewModel.updateRegistrationStatusDialog(0) },
-            okOnClick = { registerViewModel.updateRegistrationStatusDialog(0) }
+            okOnClick = { _, _ -> registerViewModel.updateRegistrationStatusDialog(0) }
         )
     }
 }

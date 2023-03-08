@@ -5,12 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,19 +13,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLexTheme
 import androidx.navigation.compose.rememberNavController
-import com.amplifyframework.auth.AuthChannelEventName
-import com.amplifyframework.core.InitializationStatus
-import com.amplifyframework.hub.HubChannel
 import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
-import com.bitpunchlab.android.jesschatlex.main.BottomNavItem
 import com.bitpunchlab.android.jesschatlex.main.MainScreen
 import com.bitpunchlab.android.jesschatlex.main.MessagesRecordScreen
 import com.bitpunchlab.android.jesschatlex.userAccount.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 class MainActivity : ComponentActivity() {
 
@@ -42,6 +32,7 @@ class MainActivity : ComponentActivity() {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         AmazonLexClient.initializeLex(applicationContext)
+        //Amplify.Auth.rememberDevice()
 
         CoroutineScope(Dispatchers.IO).launch {
             val authSession = Amplify.Auth.fetchAuthSession(

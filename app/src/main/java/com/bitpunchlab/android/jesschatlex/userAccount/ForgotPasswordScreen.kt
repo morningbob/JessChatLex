@@ -67,7 +67,7 @@ fun ForgotPasswordScreen(navController: NavHostController,
             Text(
                 text = "You need a verification code in order to change your password.",
                 modifier = Modifier
-                    .padding(top = 0.dp, bottom = 30.dp, start = 50.dp, end = 50.dp),
+                    .padding(top = 25.dp, bottom = 30.dp, start = 50.dp, end = 50.dp),
                 color = JessChatLex.getColor(mode, Element.TEXT)//JessChatLex.brownText
             )
             if (chosenOption == 0) {
@@ -147,7 +147,7 @@ fun ResetPasswordWidget(navigateCode: () -> Unit, email: String, emailError: Str
             fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
             hide = false,
             modifier = Modifier
-                .padding(top = 10.dp, start = 20.dp, end = 20.dp),
+                .padding(top = 10.dp, start = 70.dp, end = 70.dp),
             call = { forgotPassViewModel.updateEmail(it) })
         ErrorText(
             error = emailError,
@@ -165,7 +165,7 @@ fun ResetPasswordWidget(navigateCode: () -> Unit, email: String, emailError: Str
             fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
             hide = false,
             modifier = Modifier
-                .padding(top = 10.dp, start = 20.dp, end = 20.dp),
+                .padding(top = 10.dp, start = 70.dp, end = 70.dp),
             call = { forgotPassViewModel.updateVerificationCode(it) })
         ErrorText(
             error = codeError,
@@ -184,7 +184,7 @@ fun ResetPasswordWidget(navigateCode: () -> Unit, email: String, emailError: Str
             fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
             hide = false,
             modifier = Modifier
-                .padding(top = 4.dp, start = 20.dp, end = 20.dp),
+                .padding(top = 4.dp, start = 70.dp, end = 70.dp),
             call = { forgotPassViewModel.updateNewPassword(it) })
 
         ErrorText(
@@ -204,7 +204,7 @@ fun ResetPasswordWidget(navigateCode: () -> Unit, email: String, emailError: Str
             fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
             hide = false,
             modifier = Modifier
-                .padding(top = 4.dp, start = 20.dp, end = 20.dp),
+                .padding(top = 4.dp, start = 70.dp, end = 70.dp),
             call = { forgotPassViewModel.updateConfirmPassword(it) })
 
         ErrorText(
@@ -263,7 +263,7 @@ fun RequestCodeWidget(navigateRequest: () -> Unit, email: String, emailError: St
             fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
             hide = false,
             modifier = Modifier
-                .padding(top = 10.dp, start = 20.dp, end = 20.dp),
+                .padding(top = 10.dp, start = 70.dp, end = 70.dp),
             call = { forgotPassViewModel.updateEmail(it) })
 
         ErrorText(
@@ -314,7 +314,7 @@ fun ResetPasswordSucceededDialog(forgotPassViewModel: ForgotPassViewModel, mode:
         buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.brownText,
         onDismiss = { forgotPassViewModel.updateResetPasswordStatus(0) },
-        okOnClick = { forgotPassViewModel.updateResetPasswordStatus(0) })
+        okOnClick = { _, _ -> forgotPassViewModel.updateResetPasswordStatus(0) })
 }
 
 @Composable
@@ -327,7 +327,7 @@ fun ResetPasswordFailedDialog(forgotPassViewModel: ForgotPassViewModel, mode: Co
         buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.brownText,
         onDismiss = { forgotPassViewModel.updateResetPasswordStatus(0)},
-        okOnClick = { forgotPassViewModel.updateResetPasswordStatus(0) })
+        okOnClick = { _, _ -> forgotPassViewModel.updateResetPasswordStatus(0) })
 }
 
 @Composable
@@ -340,7 +340,7 @@ fun SendCodeSucceededDialog(forgotPassViewModel: ForgotPassViewModel, mode: Colo
         buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.brownText,
         onDismiss = { forgotPassViewModel.updateResetPasswordStatus(0) },
-        okOnClick = { forgotPassViewModel.updateResetPasswordStatus(0) })
+        okOnClick = { _, _ -> forgotPassViewModel.updateResetPasswordStatus(0) })
 }
 
 @Composable
@@ -353,6 +353,6 @@ fun SendCodeFailedDialog(forgotPassViewModel: ForgotPassViewModel, mode: ColorMo
         buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.brownText,
         onDismiss = { forgotPassViewModel.updateResetPasswordStatus(0) },
-        okOnClick = { forgotPassViewModel.updateResetPasswordStatus(0) })
+        okOnClick = { _, _ -> forgotPassViewModel.updateResetPasswordStatus(0) })
 }
 

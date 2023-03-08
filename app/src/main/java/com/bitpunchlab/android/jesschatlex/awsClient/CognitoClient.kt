@@ -139,7 +139,7 @@ object CognitoClient {
             }
         }
 
-
+/*
     suspend fun resendVerificationCode(email: String) : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
             CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
@@ -152,7 +152,7 @@ object CognitoClient {
 
             }
         }
-
+*/
     suspend fun confirmResetPassword(email: String, newPassword: String, code: String) : Boolean =
         suspendCancellableCoroutine { cancellableContinuation ->
             CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
@@ -213,6 +213,18 @@ object CognitoClient {
             }
         }
     }
+
+    suspend fun getDevice() : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
+                try {
+                    val result = Amplify.Auth.fetchDevices()
+                    Log.i("get device", "success: $result")
+                } catch (exception: Exception) {
+                    Log.i("get device", "failed")
+                }
+            }
+        }
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         //println("Handle $exception in CoroutineExceptionHandler")

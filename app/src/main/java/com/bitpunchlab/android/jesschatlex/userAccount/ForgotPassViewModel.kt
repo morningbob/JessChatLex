@@ -82,9 +82,11 @@ class ForgotPassViewModel : ViewModel() {
             if (CognitoClient.recoverUser(email)) {
                 Log.i("password reset", "code sent success")
                 _resetPasswordStatus.value = 3
+                resetFields()
             } else {
                 Log.i("password reset", "error")
                 _resetPasswordStatus.value = 4
+                resetFields()
             }
         }
     }

@@ -66,9 +66,15 @@ fun LoginScreen(navController: NavHostController,
     val showConfirmEmailStatus by loginViewModel.showConfirmEmailStatus.collectAsState()
     
     val readyLogin by loginViewModel.readyLogin.collectAsState()
+
+    val confirmEmail by loginViewModel.confirmEmail.collectAsState()
+    val confirmCode by loginViewModel.confirmCode.collectAsState()
+    val confirmEmailError by loginViewModel.confirmEmailError.collectAsState()
+    val confirmCodeError by loginViewModel.confirmCodeError.collectAsState()
+
+    val rememberDeviceCheckbox by loginViewModel.rememberDeviceCheckbox.collectAsState()
+
     // LaunchedEffect is used to run code that won't trigger recomposition of the view
-
-
     LaunchedEffect(key1 = loginState) {
         if (loginState) {
             navController.navigate(Main.route)
@@ -125,7 +131,7 @@ fun LoginScreen(navController: NavHostController,
                     fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
                     fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                     hide = false,
-                    modifier = Modifier.padding(top = 30.dp),
+                    modifier = Modifier.padding(top = 30.dp, start = 50.dp, end = 50.dp),
 
                 ) { loginViewModel.updateEmail(it) }
                 ErrorText(error = emailErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
@@ -139,12 +145,36 @@ fun LoginScreen(navController: NavHostController,
                     fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
                     fieldBorder = JessChatLex.getColor(mode, Element.FIELD_BORDER),
                     hide = true,
-                    modifier = Modifier.padding(top = 10.dp),
+                    modifier = Modifier.padding(top = 10.dp, start = 50.dp, end = 50.dp),
                 ) { loginViewModel.updatePassword(it) }
                 ErrorText(error = passwordErrorState, color = JessChatLex.getColor(mode, Element.ERROR_TEXT),
                     modifier = Modifier
                         .padding(start = 20.dp, end = 20.dp)
                 )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 50.dp, end = 50.dp),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = rememberDeviceCheckbox,
+                        onCheckedChange = {
+                            loginViewModel.updateRememberDevice(it)
+                        },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = JessChatLex.getColor(mode, Element.BANNER),
+                            uncheckedColor = Color.White,
+
+                            ),
+                    )
+                    GeneralText(
+                        textString = "Remember me",
+                        modifier = Modifier,
+                        textColor = JessChatLex.getColor(mode, Element.TEXT)
+                    )
+                }
             }
             AppButton(
                 title = "Send",
@@ -187,12 +217,22 @@ fun LoginScreen(navController: NavHostController,
         }
 
         if (showConfirmEmailDialog) {
-            ConfirmEmailDialog(loginViewModel = loginViewModel, mode = mode)
+            ConfirmEmailDialog(loginViewModel = loginViewModel, mode = mode,
+                emailError = {
+                    loginViewModel.updateConfirmEmailError(it)
+                    Log.i("confirm email error", "passed back to main $it")
+                    loginViewModel.updateShowConfirmEmailDialog(false)
+                    loginViewModel.updateConfirmEmailStatus(3)},
+
+
+                errorString = confirmEmailError
+            )
         }
 
         if (showConfirmEmailStatus != 0) {
             ConfirmEmailResultDialog(confirmEmailStatus = showConfirmEmailStatus,
-                loginViewModel = loginViewModel, mode = mode)
+                loginViewModel = loginViewModel, mode = mode, error = confirmEmailError
+                )
         }
 
         Box(
@@ -217,11 +257,16 @@ fun LoginFailureDialog(loginViewModel: LoginViewModel, mode: ColorMode) {
         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.blueText,
         buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
         onDismiss = { loginViewModel.updateShowDialog(false) },
-        okOnClick = { loginViewModel.updateShowDialog(false) })
+        okOnClick = { _, _ -> loginViewModel.updateShowDialog(false) })
 }
 
 @Composable
-fun ConfirmEmailDialog(loginViewModel: LoginViewModel, mode: ColorMode) {
+fun ConfirmEmailDialog(emailState: String? = null,
+                       codeState: String? = null,
+                       loginViewModel: LoginViewModel, mode: ColorMode,
+                       emailError: ((String) -> Unit)? = null,
+                       errorString: String? = null
+                        ) {
     CustomDialog(
         title = "Verification Code",
         message = "Please enter the verification code in the email.",
@@ -229,23 +274,33 @@ fun ConfirmEmailDialog(loginViewModel: LoginViewModel, mode: ColorMode) {
         buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.blueBackground,
         textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.blueText,
         buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
+        fieldBackground = JessChatLex.getColor(mode, Element.FIELD_BACKGROUND),
         fieldOne = "Email",
         fieldTwo = "Confirmation Code",
         onDismiss = { loginViewModel.updateShowConfirmEmailDialog(false) },
-        cancelOnClick = { loginViewModel.updateShowConfirmEmailDialog(false) },
-        okOnClick = { inputList ->
-            if (!inputList?.get(0).isNullOrEmpty() && !inputList?.get(1).isNullOrEmpty()) {
-                Log.i("login screen", "email: ${inputList?.get(0)}")
-                Log.i("login screen", "code: ${inputList?.get(1)}")
-                loginViewModel.verifyConfirmCode(inputList!!.get(0), inputList!!.get(1))
+        cancelOnClick = { _, _ ->
+            loginViewModel.updateShowConfirmEmailDialog(false) },
+        okOnClick = { email: String?, code: String? ->
+            //if (!inputList?.get(0).isNullOrEmpty() && !inputList?.get(1).isNullOrEmpty()) {
+            Log.i("login screen", "email: ${email}")
+            Log.i("login screen", "code: ${code}")
+            if (!email.isNullOrEmpty() && !code.isNullOrEmpty()) {
+                val error = InputValidation.verifyEmail(email)
+                if (error == "") {
+                    loginViewModel.verifyConfirmCode(email, code)
+                    loginViewModel.updateShowConfirmEmailDialog(false)
+                } else {
+                    emailError!!.invoke(error)
+                }
+            } else {
+                emailError!!.invoke("Both fields are required")
             }
-            loginViewModel.updateShowConfirmEmailDialog(false)
         }
     )
 }
 
 @Composable
-fun ConfirmEmailResultDialog(confirmEmailStatus: Int, loginViewModel: LoginViewModel, mode: ColorMode) {
+fun ConfirmEmailResultDialog(confirmEmailStatus: Int, error: String? = null, loginViewModel: LoginViewModel, mode: ColorMode) {
     if (confirmEmailStatus == 1) {
         CustomDialog(
             title = "Email Verification Success",
@@ -256,7 +311,7 @@ fun ConfirmEmailResultDialog(confirmEmailStatus: Int, loginViewModel: LoginViewM
             buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
             onDismiss = { loginViewModel.updateConfirmEmailStatus(0) },
             //cancelOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
-            okOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
+            okOnClick = { _, _ -> loginViewModel.updateConfirmEmailStatus(0) },
         )
     } else if (confirmEmailStatus == 2) {
         CustomDialog(
@@ -268,7 +323,19 @@ fun ConfirmEmailResultDialog(confirmEmailStatus: Int, loginViewModel: LoginViewM
             textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.blueText,
             onDismiss = { loginViewModel.updateConfirmEmailStatus(0) },
             //cancelOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
-            okOnClick = { loginViewModel.updateConfirmEmailStatus(0) },
+            okOnClick = { _, _ -> loginViewModel.updateConfirmEmailStatus(0) },
         )
+    } else if (confirmEmailStatus == 3 && !error.isNullOrEmpty()) {
+        CustomDialog(
+            title = "Confirm Email Error",
+            message = error,
+            backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND),//JessChatLex.lightBlueBackground,
+            buttonColor = JessChatLex.getColor(mode, Element.BUTTON_COLOR),//JessChatLex.blueBackground,
+            buttonBorder = JessChatLex.getColor(mode, Element.BUTTON_BORDER),
+            textColor = JessChatLex.getColor(mode, Element.TEXT),//JessChatLex.blueText,
+            onDismiss = { loginViewModel.updateConfirmEmailStatus(0) },
+            okOnClick = { _, _ -> loginViewModel.updateConfirmEmailStatus(0) },)
     }
 }
+
+

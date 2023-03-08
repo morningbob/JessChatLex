@@ -39,6 +39,21 @@ class LoginViewModel : ViewModel() {
     private val _showConfirmEmailStatus = MutableStateFlow<Int>(0)
     val showConfirmEmailStatus: StateFlow<Int> = _showConfirmEmailStatus.asStateFlow()
 
+    private val _confirmEmail = MutableStateFlow<String>("")
+    val confirmEmail : StateFlow<String> = _confirmEmail.asStateFlow()
+
+    private val _confirmCode = MutableStateFlow<String>("")
+    val confirmCode : StateFlow<String> = _confirmCode.asStateFlow()
+
+    private val _confirmEmailError = MutableStateFlow<String>(" ")
+    val confirmEmailError : StateFlow<String> = _confirmEmailError.asStateFlow()
+
+    private val _confirmCodeError = MutableStateFlow<String>(" ")
+    val confirmCodeError : StateFlow<String> = _confirmCodeError.asStateFlow()
+
+    private val _rememberDeviceCheckbox = MutableStateFlow<Boolean>(true)
+    val rememberDeviceCheckbox : StateFlow<Boolean> = _rememberDeviceCheckbox.asStateFlow()
+
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
@@ -66,13 +81,14 @@ class LoginViewModel : ViewModel() {
                 // setting the alpha here and below, duplicately, because of timing issue
                 // want to set to 0f only when login result came back
                 _loadingAlpha.value = 0f
+                resetFields()
             } else {
                 // display alert
                 Log.i("login user", "failure")
+                resetFields()
                 _showFailureDialog.value = true
                 _loadingAlpha.value = 0f
             }
-
         }
     }
 /*
@@ -104,7 +120,7 @@ class LoginViewModel : ViewModel() {
             }
         }
     }
-
+/*
     fun sendVerificationCode(email: String) {
         _loadingAlpha.value = 1f
         CoroutineScope(Dispatchers.IO).launch {
@@ -116,7 +132,7 @@ class LoginViewModel : ViewModel() {
             }
         }
     }
-
+*/
     fun updateShowDialog(newValue: Boolean) {
         _showFailureDialog.value = newValue
     }
@@ -127,5 +143,29 @@ class LoginViewModel : ViewModel() {
 
     fun updateConfirmEmailStatus(newValue: Int) {
         _showConfirmEmailStatus.value = newValue
+    }
+
+    fun updateConfirmEmail(newValue: String) {
+        _confirmEmail.value = newValue
+    }
+
+    fun updateConfirmCode(newValue: String) {
+        _confirmCode.value = newValue
+    }
+
+    fun updateConfirmEmailError(newValue: String) {
+        _confirmEmailError.value = newValue
+    }
+
+    fun updateRememberDevice(newValue: Boolean) {
+        _rememberDeviceCheckbox.value = newValue
+    }
+
+
+    private fun resetFields() {
+        _emailState.value = ""
+        _passwordState.value = ""
+        _emailErrorState.value = " "
+        _passwordState.value = " "
     }
 }

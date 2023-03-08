@@ -1,5 +1,6 @@
 package com.bitpunchlab.android.jesschatlex.base
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.ViewModel
 import com.bitpunchlab.android.jesschatlex.R
 import com.bitpunchlab.android.jesschatlex.helpers.WhoSaid
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLex
@@ -60,7 +62,7 @@ fun UserInputTextField(title: String, content: String, hide: Boolean,
 
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 50.dp, end = 50.dp)
+                //.padding()
                 .then(modifier),
 
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
@@ -136,6 +138,9 @@ fun AppButton(title: String, onClick: () -> Unit, shouldEnable: Boolean,
               buttonBackground: Color = JessChatLex.lightBlueBackground,
               buttonBorder: Color = JessChatLex.blueBackground,
               modifier: Modifier) {
+
+    //val backgroundColor = if ()
+
     OutlinedButton(
         onClick = { onClick.invoke() },
 
@@ -174,13 +179,17 @@ fun HeaderImage(resource: Int, description: String, paddingTop: Int, paddingBott
 
         )
 }
-
+// stateOne: ((String) -> Unit)? = null, stateTwo: ((String) -> Unit)? = null
 @Composable
 fun CustomDialog(title: String, message: String, backgroundColor: Color = JessChatLex.dialogBlueBackground,
                  buttonColor: Color = JessChatLex.blueText, buttonBorder: Color = JessChatLex.blueText,
-                 textColor: Color = JessChatLex.blueText,
-                 fieldOne: String? = null, fieldTwo: String? = null, onDismiss: () -> Unit,
-                 okOnClick: ((List<String>?) -> Unit)? = null, cancelOnClick: ((List<String>?) -> Unit)? = null) {
+                 textColor: Color = JessChatLex.blueText, fieldBackground: Color = Color.White,
+                 fieldOne: String? = null, fieldTwo: String? = null,
+                 onDismiss: () -> Unit,
+                 okOnClick: ((String?, String?) -> Unit)? = null, cancelOnClick: ((String?, String?) -> Unit)? = null,
+                 errorString: String? = null
+) {
+    Log.i("custom dialog", "got error string $errorString")
 
     var fieldOneValue by remember {
         mutableStateOf("")
@@ -220,69 +229,78 @@ fun CustomDialog(title: String, message: String, backgroundColor: Color = JessCh
                     color = textColor
                 )
 
-                if (fieldOne != null) {
-                    OutlinedTextField(
-                        value = fieldOneValue,
-                        onValueChange = { newValue ->
-                            fieldOneValue = newValue
-                        },
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedBorderColor = JessChatLex.blueBackground,
-                            unfocusedBorderColor = MaterialTheme.colors.primary,
-                            focusedLabelColor = JessChatLex.blueBackground,
-                            unfocusedLabelColor = JessChatLex.blueBackground
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        label = { Text(text = fieldOne) },
-                        modifier = Modifier.padding(top = 30.dp)
-                        // placeholder = { Text(text = "Type your message") }
-                    )
-                }
-
-                if (fieldTwo != null) {
-                    OutlinedTextField(
-                        value = fieldTwoValue,
-                        onValueChange = { newValue ->
-                            fieldTwoValue = newValue
-                        },
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedBorderColor = JessChatLex.blueBackground,
-                            unfocusedBorderColor = MaterialTheme.colors.primary,
-                            focusedLabelColor = JessChatLex.blueBackground,
-                            unfocusedLabelColor = JessChatLex.blueBackground
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        label = { Text(text = fieldTwo) },
-                        modifier = Modifier.padding(top = 30.dp)
-                        // placeholder = { Text(text = "Type your message") }
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 30.dp, start = 50.dp, end = 50.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                Column(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    if (okOnClick != null) {
-                        DialogButton(
-                            title = "OK",
-                            color = buttonColor,
-                            border = buttonBorder,
-                            onClick = okOnClick,
-                            modifier = Modifier,
-                            parameter = listOf(fieldOneValue, fieldTwoValue)
-                        )
+                    if (fieldOne != null) {
+                        UserInputTextField(
+                            title = fieldOne,
+                            content = fieldOneValue,
+                            hide = false,
+                            fieldBorder = buttonBorder,
+                            fieldBackground = fieldBackground,
+                            textColor = textColor,
+                            modifier = Modifier.padding(top = 30.dp, start = 15.dp, end = 15.dp),
+                            call = { fieldOneValue = it })
                     }
 
-                    if (cancelOnClick != null) {
-                        DialogButton(
-                            title = "Cancel",
-                            color = buttonColor,
-                            border = buttonBorder,
-                            onClick = cancelOnClick,
+                    if (fieldTwo != null) {
+                        UserInputTextField(
+                            title = fieldTwo,
+                            content = fieldTwoValue,
+                            hide = false,
+                            fieldBorder = buttonBorder,
+                            fieldBackground = fieldBackground,
+                            textColor = textColor,
+                            modifier = Modifier.padding(top = 30.dp, start = 15.dp, end = 15.dp),
+                            call = { fieldTwoValue = it })
+                    }
+
+                    if (okOnClick != null && cancelOnClick != null) {
+                        Row(
                             modifier = Modifier
-                        )
+                                .fillMaxWidth()
+                                .padding(top = 30.dp, start = 10.dp, end = 10.dp),
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            DialogButton(
+                                title = "OK",
+                                stateOne = fieldOneValue,
+                                stateTwo = fieldTwoValue,
+                                color = buttonColor,
+                                border = buttonBorder,
+                                onClick = okOnClick,
+                                modifier = Modifier,
+                            )
+                            DialogButton(
+                                title = "Cancel",
+                                color = buttonColor,
+                                border = buttonBorder,
+                                onClick = cancelOnClick,
+                                modifier = Modifier
+                            )
+                            if (errorString != null) {
+                                ErrorText(
+                                    error = errorString,
+                                    modifier = Modifier.padding(top = 5.dp)
+                                )
+                            }
+                        }
+                    } else if (okOnClick != null){
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 30.dp, start = 10.dp, end = 10.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            DialogButton(
+                                title = "OK",
+                                color = buttonColor,
+                                border = buttonBorder,
+                                onClick = okOnClick,
+                                modifier = Modifier,
+                            )
+                        }
                     }
                 }
             }
@@ -293,14 +311,11 @@ fun CustomDialog(title: String, message: String, backgroundColor: Color = JessCh
 @Composable
 fun DialogButton(title: String, color: Color = JessChatLex.blueBackground,
                  border: Color = JessChatLex.blueBackground,
-                 parameter: List<String>? = null,
-                 onClick: (List<String>?) -> Unit, modifier: Modifier) {
+                 stateOne: String? = null, stateTwo: String? = null,
+                 onClick: (String?, String?) -> Unit, modifier: Modifier) {
 
     OutlinedButton(
-        onClick = { onClick.invoke(parameter) },
-        //modifier = Modifier
-        //    .fillMaxWidth(0.5f),
-        //.background(JessChatLex.buttonTextColor),
+        onClick = { onClick.invoke(stateOne, stateTwo) },
         colors = ButtonDefaults.buttonColors(
             backgroundColor = color,
         ),
