@@ -51,7 +51,7 @@ class LoginViewModel : ViewModel() {
     private val _confirmCodeError = MutableStateFlow<String>(" ")
     val confirmCodeError : StateFlow<String> = _confirmCodeError.asStateFlow()
 
-    private val _rememberDeviceCheckbox = MutableStateFlow<Boolean>(true)
+    private val _rememberDeviceCheckbox = MutableStateFlow<Boolean>(false)
     val rememberDeviceCheckbox : StateFlow<Boolean> = _rememberDeviceCheckbox.asStateFlow()
 
 
@@ -60,6 +60,13 @@ class LoginViewModel : ViewModel() {
             combine(emailErrorState, passwordErrorState) { email, password ->
                 _readyLogin.value = email == "" && password == ""
             }.collect()
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            rememberDeviceCheckbox.collect() { checked ->
+                //if (checked) {
+                //    CognitoClient.rememberDevice()
+                //}
+            }
         }
     }
 
@@ -82,6 +89,11 @@ class LoginViewModel : ViewModel() {
                 // want to set to 0f only when login result came back
                 _loadingAlpha.value = 0f
                 resetFields()
+                // after signin succeeded, if the checked value is true,
+                // we remember the device
+                if (CognitoClient.rememberDevice()) {
+                    Log.i("remember device", "success")
+                }
             } else {
                 // display alert
                 Log.i("login user", "failure")

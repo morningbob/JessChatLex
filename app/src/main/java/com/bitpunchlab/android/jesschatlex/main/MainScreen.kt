@@ -105,6 +105,9 @@ fun MainScreen(navController: NavHostController,
 
 
             ) {
+                Button(onClick = { mainViewModel.logoutUser() }) {
+                    Text(text = "logout")
+                }
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxHeight(0.75f)
@@ -154,8 +157,7 @@ fun MainScreen(navController: NavHostController,
                         },
                         textStyle = LocalTextStyle.current.copy(color = JessChatLex.getColor(themeMode, Element.FIELD_BORDER)),
                         colors = TextFieldDefaults.outlinedTextFieldColors(
-                            //focusedLabelColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER),
-                            //unfocusedLabelColor = JessChatLex.getColor(themeMode, Element.FIELD_BORDER),
+                           
                             focusedBorderColor = JessChatLex.getColor(
                                 themeMode,
                                 Element.FIELD_BORDER

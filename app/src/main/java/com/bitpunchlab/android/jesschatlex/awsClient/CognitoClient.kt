@@ -9,6 +9,7 @@ import com.amazonaws.services.cognitoidentity.model.CognitoIdentityProvider
 import com.amazonaws.services.cognitoidentity.model.NotAuthorizedException
 import com.amplifyframework.auth.AuthException
 import com.amplifyframework.auth.AuthUserAttributeKey
+import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.auth.cognito.options.AWSCognitoAuthSignInOptions
 import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
 import com.amplifyframework.auth.options.AuthSignUpOptions
@@ -27,15 +28,28 @@ object CognitoClient {
             map.put("email", email)
             val options = AWSCognitoAuthSignInOptions.builder()
                 //.authFlowType(AuthFlowType.USER_PASSWORD_AUTH)
+                //.authFlowType()
+                //.
                 .metadata(map)
                 .build()
 
             CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
                 try {
                     val result =  Amplify.Auth.signIn(username = email, password = password)
-
+                    //val result1 =  AWSMobileClient.getInstance().signIn(email, password)
                     if (result.isSignedIn) {
                         Log.i("Cognito Sign in", "Sign in succeeded")
+                        //AWSMobileClient.getInstance().signIn()
+                        //val accessToken = AWSMobileClient.getInstance().tokens.accessToken
+                        //val refreshToken = AWSMobileClient.getInstance().tokens.refreshToken
+                        val authSession = Amplify.Auth.fetchAuthSession()
+                        val auth = authSession as AWSCognitoAuthSession
+                        val accessToken = auth.userPoolTokensResult.value?.accessToken
+                        val refreshToken = auth.userPoolTokensResult.value?.refreshToken
+                        Log.i("access token", accessToken.toString())
+                        Log.i("refresh token", refreshToken.toString())
+                        //AWSMobileClient.getInstance().
+                        //val cognitoTokenProvider = result as Token
                         cancellableContinuation.resume(true) {}
                     } else if (!result.isSignedIn) {
                         Log.e("Cognito Sign in", "Sign in not complete")
@@ -189,39 +203,54 @@ object CognitoClient {
         when(signOutResult) {
             is AWSCognitoAuthSignOutResult.CompleteSignOut -> {
                 // Sign Out completed fully and without errors.
-                Log.i("AuthQuickStart", "Signed out successfully")
+                Log.i("logout triggered", "Signed out successfully")
             }
             is AWSCognitoAuthSignOutResult.PartialSignOut -> {
                 // Sign Out completed with some errors. User is signed out of the device.
                 signOutResult.hostedUIError?.let {
-                    Log.e("AuthQuickStart", "HostedUI Error", it.exception)
+                    Log.e("logout triggered", "HostedUI Error", it.exception)
                     // Optional: Re-launch it.url in a Custom tab to clear Cognito web session.
 
                 }
                 signOutResult.globalSignOutError?.let {
-                    Log.e("AuthQuickStart", "GlobalSignOut Error", it.exception)
+                    Log.e("logout triggered", "GlobalSignOut Error", it.exception)
                     // Optional: Use escape hatch to retry revocation of it.accessToken.
                 }
                 signOutResult.revokeTokenError?.let {
-                    Log.e("AuthQuickStart", "RevokeToken Error", it.exception)
+                    Log.e("logout triggered", "RevokeToken Error", it.exception)
                     // Optional: Use escape hatch to retry revocation of it.refreshToken.
                 }
             }
             is AWSCognitoAuthSignOutResult.FailedSignOut -> {
                 // Sign Out failed with an exception, leaving the user signed in.
-                Log.e("AuthQuickStart", "Sign out Failed", signOutResult.exception)
+                Log.e("logout triggered", "Sign out Failed", signOutResult.exception)
             }
         }
     }
 
-    suspend fun getDevice() : Boolean =
+    suspend fun rememberDevice() : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
             CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
                 try {
-                    val result = Amplify.Auth.fetchDevices()
-                    Log.i("get device", "success: $result")
+                    val result = Amplify.Auth.rememberDevice()
+                    //val i = Amplify.Auth.fetchAuthSession()//.rememberDevice()
+
+                    Log.i("remember device", "success: $result")
                 } catch (exception: Exception) {
-                    Log.i("get device", "failed")
+                    Log.i("remember device", "failed")
+                }
+            }
+        }
+
+    suspend fun getAccessToken() : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            CoroutineScope(Dispatchers.IO).launch(coroutineExceptionHandler) {
+                try {
+                    //Amplify.Auth.fetchAuthSession { result ->
+
+                    //}
+                } catch (exception: Exception) {
+
                 }
             }
         }

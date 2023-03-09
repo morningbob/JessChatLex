@@ -37,7 +37,7 @@ fun LogoutScreen(navController: NavHostController,
         mutableStateOf(1f)
     }
 
-    mainViewModel.logoutUser()
+    //mainViewModel.logoutUser()
 
     LaunchedEffect(key1 = loginState) {
         if (!loginState) {
@@ -48,7 +48,6 @@ fun LogoutScreen(navController: NavHostController,
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        //color = JessChatLex.lightBlueBackground
     ) {
         val mode = chooseMode()
 

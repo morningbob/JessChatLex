@@ -155,9 +155,10 @@ fun LoginScreen(navController: NavHostController,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 50.dp, end = 50.dp),
-                    horizontalArrangement = Arrangement.Start,
+                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     Checkbox(
                         checked = rememberDeviceCheckbox,
                         onCheckedChange = {
@@ -171,9 +172,11 @@ fun LoginScreen(navController: NavHostController,
                     )
                     GeneralText(
                         textString = "Remember me",
-                        modifier = Modifier,
+                        modifier = Modifier
+                            .padding(0.dp),
                         textColor = JessChatLex.getColor(mode, Element.TEXT)
                     )
+                    //Spacer(modifier = Modifier.weight(1f))
                 }
             }
             AppButton(

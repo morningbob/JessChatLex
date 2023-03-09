@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.bitpunchlab.android.jesschatlex.ui.theme.JessChatLexTheme
 import androidx.navigation.compose.rememberNavController
+import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.kotlin.core.Amplify
 import com.bitpunchlab.android.jesschatlex.awsClient.AmazonLexClient
 import com.bitpunchlab.android.jesschatlex.main.MainScreen
@@ -39,7 +40,11 @@ class MainActivity : ComponentActivity() {
                 //{ Log.i("AmplifyQuickstart", "Auth session = ") },
                 //{ error -> Log.e("AmplifyQuickstart", "Failed to fetch auth session", error) }
             )
-            Log.i("AmplifyQuickstart", "Auth session = $authSession")
+            Log.i("Main activity", "Auth session = $authSession")
+            // retrieve tokens
+            val auth = authSession as AWSCognitoAuthSession
+            Log.i("token: " , auth.userPoolTokensResult.value?.accessToken.toString())
+
             //authListening()
 
             // check the auth session, if the user is signed it here is necessary
@@ -48,6 +53,8 @@ class MainActivity : ComponentActivity() {
                 Log.i("main activity", "set sign in as true")
                 mainViewModel._isLoggedIn.value = true
                 Log.i("main activity", "isLogged in ${mainViewModel._isLoggedIn.value}")
+            } else {
+                Log.i("main activity", "is not signed in")
             }
         }
         setContent {

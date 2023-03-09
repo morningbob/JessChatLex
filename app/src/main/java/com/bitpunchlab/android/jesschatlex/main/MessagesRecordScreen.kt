@@ -60,11 +60,12 @@ fun MessagesRecordScreen(navController: NavHostController,
             ) },
             //backgroundColor = JessChatLex.getColor(mode, Element.BACKGROUND)
         ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .background(JessChatLex.getColor(mode, Element.BACKGROUND))) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(JessChatLex.getColor(mode, Element.BACKGROUND))
                         .padding(top = 30.dp, start = 30.dp, end = 30.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
